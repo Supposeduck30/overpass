@@ -34,11 +34,15 @@ def get(url: str, stream: bool = False) -> requests.Response:
     """GET with two retries and backoff; 429 waits a minute. The key never reaches a log."""
     shown = url.replace(map_key() or "\0", "KEY")
     last = None
-    for attempt in range(3):
+    attempt = waits = 0
+    while attempt < 3:
         try:
             r = SESSION.get(url, stream=stream, timeout=120)
             if r.status_code == 429 or (not stream and "Exceeding allowed transaction" in r.text[:200]):
-                print(f"  rate limited, waiting 60 s: {shown}", flush=True)
+                # The key allows 5,000 transactions per 10 minutes; a 5-day area call costs about 10.
+                waits += 1
+                if waits > 20:
+                    raise SystemExit(f"FETCH FAILED {shown}: still rate limited after 20 minutes")
                 time.sleep(60)
                 continue
             if r.status_code in (200, 404):
@@ -46,7 +50,8 @@ def get(url: str, stream: bool = False) -> requests.Response:
             last = f"HTTP {r.status_code}"
         except requests.RequestException as e:
             last = type(e).__name__
-        time.sleep(5 * (attempt + 1))
+        attempt += 1
+        time.sleep(5 * attempt)
     raise SystemExit(f"FETCH FAILED {shown}: {last}")
 
 
