@@ -1,0 +1,26 @@
+grid_deg: 0.25
+calibration_years: [2012, 2020]      # link 1; S-NPP's first full month is 2012-02
+link2_start: 2020-01-01              # S-NPP <-> NOAA-20 overlap, to the last S-NPP date
+snpp_end: 2026-11-02                 # confirmed by the availability table on 2026-11-14
+bootstrap_iterations: 500
+random_seed: 42
+modis_min_confidence: 30
+viirs_keep_confidence: ["n", "h"]
+keep_types: [0]
+min_fire_days_for_clock: 30
+
+archive_base: https://firms.modaps.eosdis.nasa.gov/data/country
+api_base: https://firms.modaps.eosdis.nasa.gov/api
+area_day_range: 5                    # the API rejects anything above 5
+
+regions:
+  - {id: cordoba, name: "Córdoba, Argentina", country: Argentina, bbox: [-65.8, -35.0, -61.7, -29.5], tier: hero}
+  - {id: california, name: "California, USA", country: United_States, bbox: [-124.5, 32.5, -114.1, 42.0], tier: hero}
+  - {id: portugal, name: "Portugal", country: Portugal, bbox: [-9.6, 36.9, -6.1, 42.2], tier: atlas}
+  - {id: punjab, name: "Punjab–Haryana, India", country: India, bbox: [73.8, 27.6, 77.6, 32.6], tier: atlas}
+  - {id: zambia, name: "Zambia", country: Zambia, bbox: [21.9, -18.1, 33.8, -8.2], tier: atlas}
+  - {id: kalimantan, name: "Central Kalimantan, Indonesia", country: Indonesia, bbox: [110.7, -3.6, 116.0, 0.8], tier: atlas}
+  - {id: se_australia, name: "Southeast Australia", country: Australia, bbox: [140.9, -39.2, 153.7, -28.1], tier: atlas}
+  - {id: mato_grosso, name: "Mato Grosso, Brazil", country: Brazil, bbox: [-61.7, -18.1, -50.2, -7.3], tier: atlas}
+  - {id: alberta, name: "Alberta, Canada", country: Canada, bbox: [-120.0, 49.0, -110.0, 60.0], tier: atlas}
+  - {id: sakha, name: "Central Sakha, Russia", country: Russian_Federation, bbox: [120.0, 60.0, 135.0, 66.0], tier: atlas}
