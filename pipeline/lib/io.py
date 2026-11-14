@@ -25,17 +25,14 @@ def get_region(cfg: dict, region_id: str) -> dict:
     raise SystemExit(f"Unknown region '{region_id}'. Known: {[r['id'] for r in cfg['regions']]}")
 
 
-def region_ids(cfg: dict, arg_region: str | None, arg_all: bool) -> list[str]:
+def region_ids(cfg: dict, arg_region: str | None, arg_all: bool, needs: str | None = None) -> list[str]:
+    """Regions named on the command line. With --all and `needs`, only those whose input exists."""
     if arg_all:
-        return [r["id"] for r in cfg["regions"]]
+        ids = [r["id"] for r in cfg["regions"]]
+        return [i for i in ids if needs is None or (DATA / needs.format(region=i)).exists()]
     if not arg_region:
         raise SystemExit("Pass --region ID or --all")
     return [get_region(cfg, r)["id"] for r in arg_region.split(",")]
-
-
-def prepared_regions(cfg: dict, stage_file: str) -> list[str]:
-    """Regions for which a given stage output exists, in config order."""
-    return [r["id"] for r in cfg["regions"] if (DATA / stage_file.format(region=r["id"])).exists()]
 
 
 def map_key() -> str | None:

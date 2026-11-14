@@ -1,0 +1,16 @@
+{
+  "grid": 0.25,
+  "note": "Expected values were worked out by hand. ix counts 0.25-degree cells east from 180W, iy north from 90S. date_local is the date of UTC time plus longitude/15 hours.",
+  "cases": [
+    {"lat": -31.4, "lon": -64.2, "acq_date": "2020-09-15", "acq_time": "1745", "ix": 463, "iy": 234, "date_local": "2020-09-15"},
+    {"lat": -31.4, "lon": -64.2, "acq_date": "2020-09-15", "acq_time": "0410", "ix": 463, "iy": 234, "date_local": "2020-09-14"},
+    {"lat": 0.0, "lon": 0.0, "acq_date": "2021-01-01", "acq_time": "0000", "ix": 720, "iy": 360, "date_local": "2021-01-01"},
+    {"lat": -0.01, "lon": -0.01, "acq_date": "2021-01-01", "acq_time": "0000", "ix": 719, "iy": 359, "date_local": "2020-12-31"},
+    {"lat": 65.3, "lon": 179.9, "acq_date": "2019-06-30", "acq_time": "1230", "ix": 1439, "iy": 621, "date_local": "2019-07-01"},
+    {"lat": 65.3, "lon": -179.9, "acq_date": "2019-07-01", "acq_time": "1130", "ix": 0, "iy": 621, "date_local": "2019-06-30"},
+    {"lat": 38.5, "lon": -121.25, "acq_date": "2018-11-08", "acq_time": "2113", "ix": 235, "iy": 514, "date_local": "2018-11-08"},
+    {"lat": 38.75, "lon": -121.0, "acq_date": "2018-11-09", "acq_time": "0905", "ix": 236, "iy": 515, "date_local": "2018-11-09"},
+    {"lat": 30.9, "lon": 75.85, "acq_date": "2022-10-31", "acq_time": "2030", "ix": 1023, "iy": 483, "date_local": "2022-11-01"},
+    {"lat": -89.99, "lon": 10.1, "acq_date": "2020-02-29", "acq_time": "2330", "ix": 760, "iy": 0, "date_local": "2020-03-01"}
+  ]
+}

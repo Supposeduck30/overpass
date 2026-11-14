@@ -141,7 +141,7 @@ def main() -> None:
     ap.add_argument("--all", action="store_true")
     args = ap.parse_args()
     cfg = load_config()
-    for rid in region_ids(cfg, args.region, args.all):
+    for rid in region_ids(cfg, args.region, args.all, "raw/{region}/fetch_log.json"):
         clean_region(cfg, rid)
 
 
