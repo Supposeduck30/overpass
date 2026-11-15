@@ -3,6 +3,78 @@
 Running log of what was checked against real FIRMS data, what was decided, and what a person
 still has to look at. The final report goes at the top of this file when the build is done.
 
+## Final report (14 Nov 2026, evening)
+
+### Deploy
+
+The Vercel CLI is not installed on the build machine, so the site is not deployed yet. Steps:
+
+1. https://vercel.com/new, import `github.com/Supposeduck30/overpass`.
+2. Root directory `web`. Framework preset Vite (also set in `web/vercel.json`). Build command `npm run build`, output `dist`.
+3. Environment variable `FIRMS_MAP_KEY` (Production and Preview). Without it every view still works from the committed data; live month-to-date and recent detections for a box say they are unavailable.
+4. Deploy, then open `/?tour=1` and `/?v=evidence` to check the live site.
+
+### Headline numbers
+
+| | Córdoba, Argentina | California, USA |
+|---|---|---|
+| Aqua to S-NPP model (chosen by leave-one-year-out) | M3, median error 12.2% | M3, median error 13.4% |
+| One global factor, same test | 22.2% | 23.3% |
+| Exchange rate at the median burning month | ×3.55 (3.37–3.75) | ×4.07 (3.86–4.27) |
+| Step at Feb 2012, raw | ×2.70 (1.99–3.65) | ×3.58 (2.60–4.93) |
+| Step at Feb 2012, harmonized | ×0.85 (0.66–1.11) | ×0.89 (0.70–1.12) |
+| Backward test (fit 2016–2020, predict 2012–2015) | 14.5% error, 85% inside the 90% interval | 15.2% error, 79% inside |
+| Forward test (fit 2012–2017, predict 2018–2020) | 10.9% error, 94% inside | 14.4% error, 69% inside |
+| NOAA-20 to S-NPP | factor 0.961 (0.950–0.972) | 0.946 (0.934–0.956) |
+| Top fire year | 2003, 4,915 fire-days | 2020, 7,948 fire-days |
+
+Atlas: Portugal is in (M4, 19.7% against 30.8% for one factor; ×4.27). Punjab was fetching when
+this was written; Kalimantan, Zambia, Mato Grosso, Southeast Australia, Alberta and Sakha were
+queued behind it. Each needs `run_all.py --region X --from-stage clean --to-stage aggregate`, then
+`run_all.py --all --from-stage calibrate`, then a data commit.
+
+### Which claims held
+
+- Held: the raw record jumps at the 2012 satellite change in every region, and harmonized it does not (each harmonized step interval includes ×1).
+- Held: a regional model beats one global factor in 3 of 3 regions.
+- Held with the §15 fallback: 90% intervals. Held-out coverage was short in Córdoba (84%) and Portugal (82%) and was widened from held-out residuals. California's forward and backward tests still cover only 69% and 79%; the Evidence view says so.
+- Did not hold: "NOAA-20 is interchangeable with S-NPP". It reads 4 to 7% higher; link 2 uses a factor.
+- Did not hold: "fire-days 0.25° is the steadiest unit". It is within 0.03 of the steadiest in every region; the unit was kept and the Evidence view shows it.
+- Did not hold as a cause: Aqua's drift is measured (about +110 minutes by 2026), but the S-NPP to Aqua ratio mostly stays in its earlier range. Reported as "no clear effect detected".
+- Not testable yet: a step at the Nov 2026 handoff (no NOAA-20-only month exists). The 2020–2026 overlap stands in.
+- Open: Pettitt still finds a change point in the harmonized series. In Córdoba and Portugal Aqua alone has the same date, which points to burning; in California it does not (2017-03 against 2009-05), so a leftover seam there is not ruled out. The app says this.
+- Season: Portugal's peak-date trend (+45.6 days per decade) crosses the satellite change on a date the satellites disagree about; the app flags it as a possible artifact.
+
+### Cut
+
+Stretch goals not built: Terra extension, Ask, forecast, Helix, Spanish. Atlas regions after
+Portugal depend on the background fetch (above).
+
+### A person must check
+
+- Every region box in `pipeline/config.yaml`, and that clipping to the country outline is what the team wants (see the decision on Portugal below).
+- The top five fire years per region against local knowledge (Córdoba 2003, 2004, 2006, 2005, 2008; California 2020, 2021, 2008, 2017, 2018; Portugal 2005, 2017, 2003, 2009, 2012).
+- `REFERENCES.md`: paper citations were written from memory of the literature and need checking against the originals.
+- Whether the Pettitt reading for Córdoba (less burning after 2012) matches local records.
+
+### Usability pass (desktop, from a fresh visit)
+
+| Task | Path | Clicks |
+|---|---|---|
+| Why does 2012 look odd? | First screen: the finding sentence ("Raw counts jump 2.7 times at the 2012 satellite change") and the labelled dashed rule; Harmonized removes it | 0 (1 to see it go) |
+| Which month usually burns most? | Calendar's median-by-month bars and underlined fire-season months on the first screen; Season for the dial | 0 (1) |
+| Is this month unusual? | This month | 1 |
+| CSV for a drawn box | Area, Draw a box, drag, Download hotspots CSV | 3 and a drag |
+| Proof the method works | Evidence | 1 |
+
+Keyboard: skip link first, then every control in order with a 2 px focus outline; `1`–`5`, `a`, `t`, `?`, `/` and Esc work when focus is not in a field. axe-core (WCAG 2 A/AA and best practice) reports no violations on every view and drawer at 1440 and 375 px after the fixes in this build.
+
+### Production build
+
+Initial load: `index` 251.7 kB (80.4 kB gzip) plus 12.7 kB CSS and fonts. Lazy chunks: Scenes 1,229 kB (327 kB gzip; three.js and deck.gl), map style 1,058 kB (289 kB gzip; MapLibre, loaded with Area or the flyover), Evidence 28 kB, Season 8 kB, This month 8 kB. `web/public/data` is 28 MB, most of it California's hotspot archive (19.7 MB).
+
+`git log -p` checked for the FIRMS key and any LLM key: none found. No `.env`, `pipeline/data/` or `node_modules` file is tracked.
+
 ## Milestone 1: ground truth (checked 14 Nov 2026)
 
 ### What the FIRMS services actually do
