@@ -2,6 +2,7 @@
 
 Link 1 translates Aqua MODIS into S-NPP units (fit on the clean 2012-2020 overlap).
 Link 2 translates NOAA-20 into S-NPP units (fit on their overlap up to S-NPP's last full month).
+The Terra link translates Terra MODIS into S-NPP units for the months before Aqua (Nov 2000 to Jun 2002).
 Regional totals are modelled; cells receive a share of the regional total (top-down).
 """
 from __future__ import annotations
@@ -17,6 +18,7 @@ from lib.io import DATA, load_config, read_json, region_ids, write_json
 FIRST_SNPP_MONTH = "2012-02"
 SOURCE_SHARE_WEIGHT = 0.7
 COVERAGE_FLOOR = 0.85
+SOURCE_SAT = {"terra-translated": "terra", "aqua-translated": "aqua", "snpp": "snpp", "noaa20-translated": "noaa20"}
 
 
 def load_monthly(region_id: str) -> pd.DataFrame:
@@ -50,6 +52,7 @@ def link_windows(cfg: dict, region_id: str) -> dict:
     y0, y1 = cfg["calibration_years"]
     return {
         "aqua_snpp": ("aqua", "snpp", max(f"{y0}-01", FIRST_SNPP_MONTH), f"{y1}-12"),
+        "terra_snpp": ("terra", "snpp", max(f"{y0}-01", FIRST_SNPP_MONTH), f"{y1}-12"),
         "noaa20_snpp": ("noaa20", "snpp", str(cfg["link2_start"])[:7], last_snpp),
     }
 
@@ -159,6 +162,10 @@ def translate(link: dict, cfg: dict, region_id: str, link_name: str, unit: str, 
     return point, lo, hi
 
 
+def outage_month(cfg: dict, sat: str, ym: str) -> bool:
+    return any(a[:7] <= ym <= b[:7] for a, b in cfg.get("outages", {}).get(sat, []))
+
+
 def build_monthly(cfg: dict, region_id: str, links: dict, unit: str, rng: np.random.Generator) -> pd.DataFrame:
     monthly = load_monthly(region_id)
     val = wide(monthly, unit, complete_only=False)
@@ -166,23 +173,27 @@ def build_monthly(cfg: dict, region_id: str, links: dict, unit: str, rng: np.ran
     done = wide(monthly, "complete", complete_only=False).fillna(False).astype(bool)
     critical = read_json(DATA / "agg" / region_id / "climate.json")["criticalMonths"]
     last_snpp = monthly[(monthly["sat"] == "snpp") & monthly["complete"]]["ym"].max()
-    yms = [ym for ym in val.index if ym >= val["aqua"].first_valid_index()]
+    # Aqua's first month (July 2002) starts on the 4th, so Terra carries the record until Aqua's first full month.
+    first_aqua = done["aqua"][done["aqua"]].index.min()
+    yms = [ym for ym in val.index if ym >= val["terra"].first_valid_index()]
 
     out = pd.DataFrame({"ym": yms})
     out["month"] = out["ym"].str[5:].astype(int)
     season = out["month"].isin(critical).to_numpy()
-    out["source"] = np.where(out["ym"] < FIRST_SNPP_MONTH, "aqua-translated",
-                             np.where(out["ym"] <= last_snpp, "snpp", "noaa20-translated"))
+    out["source"] = np.where(out["ym"] < first_aqua, "terra-translated",
+                             np.where(out["ym"] < FIRST_SNPP_MONTH, "aqua-translated",
+                                      np.where(out["ym"] <= last_snpp, "snpp", "noaa20-translated")))
     for sat in ["aqua", "terra", "snpp", "noaa20", "noaa21"]:
         out[f"raw_{sat}"] = val[sat].reindex(yms).to_numpy() if sat in val else np.nan
         out[f"pix_{sat}"] = pix[sat].reindex(yms).to_numpy() if sat in pix else np.nan
-    src_sat = out["source"].map({"aqua-translated": "aqua", "snpp": "snpp", "noaa20-translated": "noaa20"})
-    out["partial"] = [not bool(done.at[ym, s]) for ym, s in zip(out["ym"], src_sat)]
+    src_sat = out["source"].map(SOURCE_SAT)
+    out["partial"] = [not bool(done.at[ym, s]) or outage_month(cfg, s, ym) for ym, s in zip(out["ym"], src_sat)]
 
     out["harmonized"] = out["raw_snpp"]
     out["lo"] = out["raw_snpp"]
     out["hi"] = out["raw_snpp"]
-    for name, src, link in (("aqua-translated", "aqua", "aqua_snpp"), ("noaa20-translated", "noaa20", "noaa20_snpp")):
+    for name, src, link in (("terra-translated", "terra", "terra_snpp"), ("aqua-translated", "aqua", "aqua_snpp"),
+                            ("noaa20-translated", "noaa20", "noaa20_snpp")):
         sel = (out["source"] == name).to_numpy()
         if sel.any():
             point, lo, hi = translate(links[link], cfg, region_id, link, unit,
@@ -205,13 +216,12 @@ def allocate_cells(cells: pd.DataFrame, hm: pd.DataFrame) -> pd.DataFrame:
     clim_month = {m: g.groupby("cell")["fire_days"].sum() for m, g in snpp.groupby("month")}
     clim_all = snpp.groupby("cell")["fire_days"].sum()
     by_sat_ym = {k: g.set_index("cell")["fire_days"] for k, g in cells.groupby(["sat", "ym"])}
-    src_of = {"aqua-translated": "aqua", "snpp": "snpp", "noaa20-translated": "noaa20"}
 
     rows = []
     for r in hm.itertuples():
         if r.harmonized <= 0:
             continue
-        own = by_sat_ym.get((src_of[r.source], r.ym))
+        own = by_sat_ym.get((SOURCE_SAT[r.source], r.ym))
         own = own / own.sum() if own is not None and own.sum() > 0 else None
         clim = clim_month.get(int(r.ym[5:]))
         clim = clim / clim.sum() if clim is not None and clim.sum() > 0 else clim_all / clim_all.sum()
@@ -231,7 +241,7 @@ def allocate_cells(cells: pd.DataFrame, hm: pd.DataFrame) -> pd.DataFrame:
 def calibrate_region(cfg: dict, region_id: str) -> None:
     unit = cfg.get("unit", "fire_days")
     rng = np.random.default_rng(int(cfg["random_seed"]))
-    links = {name: fit_link(cfg, region_id, name, unit, rng) for name in ("aqua_snpp", "noaa20_snpp")}
+    links = {name: fit_link(cfg, region_id, name, unit, rng) for name in ("aqua_snpp", "noaa20_snpp", "terra_snpp")}
     hm = build_monthly(cfg, region_id, links, unit, rng)
     cells = allocate_cells(pd.read_parquet(DATA / "agg" / region_id / "cellmonthly.parquet"), hm)
     out = DATA / "harmonized" / region_id

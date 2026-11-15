@@ -7,10 +7,10 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 
+from calibrate import SOURCE_SAT
 from lib.io import DATA, load_config, read_json, region_ids, write_json
 from lib.season import day_of_fire_year, fire_year
 
-SOURCE_SAT = {"aqua-translated": "aqua", "snpp": "snpp", "noaa20-translated": "noaa20"}
 NRT_SOURCE = {"aqua": "MODIS_NRT", "snpp": "VIIRS_SNPP_NRT", "noaa20": "VIIRS_NOAA20_NRT"}
 ENVELOPE = {"p10": 0.10, "p25": 0.25, "p50": 0.50, "p75": 0.75, "p90": 0.90}
 
@@ -39,8 +39,8 @@ def nowcast_region(cfg: dict, region_id: str) -> None:
 
     by_month: dict[str, dict[str, list[float]]] = {}
     for (month, year), g in dh.groupby(["month", "year"]):
-        if g["partial"].iloc[0] and g["date"].min().day != 1:
-            continue  # a month that starts late (July 2002) has no days-1..d to compare
+        if g["partial"].iloc[0] and g["ym"].iloc[0] != dh["ym"].iloc[-1]:
+            continue  # a month with an outage has no fair days-1..d to compare
         by_month.setdefault(str(month), {})[str(year)] = [round(float(v), 2) for v in g["value"].cumsum()]
     write_json(DATA / "nowcast" / region_id / "mtd.json", {"byMonth": by_month}, compact=True)
 

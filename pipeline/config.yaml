@@ -1,6 +1,8 @@
 grid_deg: 0.25
 calibration_years: [2012, 2020]      # link 1; S-NPP's first full month is 2012-02
 link2_start: 2020-01-01              # S-NPP <-> NOAA-20 overlap, to the last S-NPP date
+outages:                             # days a satellite recorded nothing anywhere; seen in every region
+  terra: [["2001-06-15", "2001-07-02"], ["2002-03-19", "2002-03-27"]]
 snpp_end: 2026-11-02                 # confirmed by the availability table on 2026-11-14
 bootstrap_iterations: 500
 random_seed: 42

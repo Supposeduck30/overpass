@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from calibrate import FIRST_SNPP_MONTH, link_windows, load_monthly, overlap_frame, pooled, wide
+from calibrate import FIRST_SNPP_MONTH, SOURCE_SAT, link_windows, load_monthly, overlap_frame, pooled, wide
 from lib import models
 from lib.io import DATA, load_config, read_json, region_ids, write_json
 from lib.pettitt import pettitt
@@ -37,8 +37,7 @@ def split_test(d: pd.DataFrame, pool: pd.DataFrame, rung: str, train: tuple[int,
 
 def seam_tests(hm: pd.DataFrame, notes: list[str]) -> dict:
     s = hm[~hm["partial"]].reset_index(drop=True)
-    raw = np.where(s["source"] == "aqua-translated", s["raw_aqua"],
-                   np.where(s["source"] == "snpp", s["raw_snpp"], s["raw_noaa20"])).astype(float)
+    raw = np.array([getattr(r, f"raw_{SOURCE_SAT[r.source]}") for r in s.itertuples()], dtype=float)
     month = s["ym"].str[5:].astype(int).to_numpy()
     y_raw, y_h = np.log1p(raw), np.log1p(s["harmonized"].to_numpy(float))
     out = {}
@@ -53,9 +52,11 @@ def seam_tests(hm: pd.DataFrame, notes: list[str]) -> dict:
                      "The handoff is checked on the 2020–2026 overlap instead (see the handoff figure).")
     pett = {}
     # Aqua alone is one instrument for the whole record: a change point it also shows is real burning, not a seam.
-    for name, y in (("raw", y_raw), ("harmonized", y_h), ("aquaOnly", np.log1p(s["raw_aqua"].to_numpy(float)))):
-        k, p = pettitt(deseasonalize(y, month))
-        pett[name] = {"ym": s["ym"].iloc[k], "p": p}
+    aqua = s["raw_aqua"].notna().to_numpy()
+    for name, y, rows in (("raw", y_raw, slice(None)), ("harmonized", y_h, slice(None)),
+                          ("aquaOnly", np.log1p(s["raw_aqua"].to_numpy(float)), aqua)):
+        k, p = pettitt(deseasonalize(y[rows], month[rows]))
+        pett[name] = {"ym": s["ym"][rows].iloc[k], "p": p}
     out["pettitt"] = pett
     if pett["harmonized"]["p"] < 0.05:
         months = lambda ym: int(ym[:4]) * 12 + int(ym[5:])
@@ -168,6 +169,25 @@ def handoff(cfg: dict, region_id: str, link2: dict, unit: str) -> dict:
     return out
 
 
+def terra_check(cfg: dict, region_id: str, links: dict, unit: str) -> dict:
+    """Terra and Aqua each translated on their own into S-NPP units for 2002-2011, years neither link was fitted on.
+
+    The two translations share only the target, so agreement is a test of both.
+    """
+    w = wide(load_monthly(region_id), unit).loc[:f"{cfg['calibration_years'][0] - 1}-12", ["terra", "aqua"]].dropna()
+    critical = read_json(DATA / "agg" / region_id / "climate.json")["criticalMonths"]
+    season = w.index.str[5:].astype(int).isin(critical)
+    t = pd.Series(models.predict(links["terra_snpp"]["params"], w["terra"].to_numpy(float), season), index=w.index)
+    a = pd.Series(models.predict(links["aqua_snpp"]["params"], w["aqua"].to_numpy(float), season), index=w.index)
+    years = pd.DataFrame({"terra": t, "aqua": a}).groupby(w.index.str[:4]).sum()
+    years = years[w.index.str[:4].value_counts().reindex(years.index) == 12]
+    return {
+        "months": f"{w.index.min()}..{w.index.max()}",
+        "totalRatio": float(t.sum() / a.sum()),
+        "years": [{"year": int(y), "terra": float(r.terra), "aqua": float(r.aqua)} for y, r in years.iterrows()],
+    }
+
+
 def validate_region(cfg: dict, region_id: str) -> dict:
     model = read_json(DATA / "model" / f"{region_id}.json")
     unit = model["unit"]
@@ -189,8 +209,11 @@ def validate_region(cfg: dict, region_id: str) -> dict:
     full["year"] = full["ym"].str[:4].astype(int)
     years = full.groupby("year").agg(total=("harmonized", "sum"), n=("ym", "size"))
     top = years[years["n"] == 12].sort_values("total", ascending=False).head(5)
-    if hm["partial"].iloc[0]:
-        notes.append(f"{hm['ym'].iloc[0]} is incomplete: Aqua's fire record begins on 4 July 2002.")
+    gaps = hm.loc[hm["partial"] & (hm["ym"] < hm["ym"].iloc[-1]), "ym"].tolist()
+    if gaps:
+        notes.append(f"{', '.join(gaps)}: the satellite behind the record was down for part of the month "
+                     "(Terra MODIS outages, 15 June to 2 July 2001 and 19 to 27 March 2002). These months are "
+                     "marked partial and left out of normals and tests.")
     if cfg.get("unit", "fire_days") != "fire_days":
         notes.append(f"The app's unit was switched to {unit} after the unit check.")
 
@@ -205,6 +228,7 @@ def validate_region(cfg: dict, region_id: str) -> dict:
         "units": unit_stability(cfg, region_id, unit, notes),
         "drift": drift, "driftEffect": effect,
         "handoff": handoff(cfg, region_id, l2, unit),
+        "terraCheck": terra_check(cfg, region_id, model["links"], unit),
         "exchange": l1["exchange"],
         "topYears": [{"year": int(y), "total": float(t)} for y, t in top["total"].items()],
         "pooledRegions": l1["pooledRegions"],
