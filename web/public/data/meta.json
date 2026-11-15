@@ -1,6 +1,6 @@
 {
- "builtAt": "2026-11-15T03:32:21Z",
- "commit": "10314d3",
+ "builtAt": "2026-11-15T04:23:07Z",
+ "commit": "365f789",
  "availability": [
   {
    "data_id": "MODIS_NRT",
@@ -91,8 +91,15 @@
    "noaa21": "2026-11-15",
    "snpp": "2026-11-02",
    "terra": "2026-11-10"
+  },
+  "kalimantan": {
+   "aqua": "2026-11-14",
+   "noaa20": "2026-11-15",
+   "noaa21": "2026-11-15",
+   "snpp": "2026-11-02",
+   "terra": "2026-11-14"
   }
  },
  "hotspotsDropped": [],
- "sizeMb": 53.5
+ "sizeMb": 74.1
 }

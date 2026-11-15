@@ -79,5 +79,23 @@
    5
   ],
   "hotspots": true
+ },
+ {
+  "id": "kalimantan",
+  "name": "Central Kalimantan, Indonesia",
+  "bbox": [
+   110.7,
+   -3.6,
+   116.0,
+   0.8
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 4,
+  "criticalMonths": [
+   8,
+   9,
+   10
+  ],
+  "hotspots": true
  }
 ]
