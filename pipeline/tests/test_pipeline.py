@@ -208,3 +208,16 @@ def test_country_clip_handles_holes_and_islands():
     lon = np.array([3.0, 1.5, 6.5, 5.0, -1.0])
     lat = np.array([3.0, 1.5, 0.5, 0.5, 2.0])
     assert inside_rings([square, hole, island], lon, lat).tolist() == [True, False, True, False, False]
+
+
+def test_forecast_climatology_uses_earlier_years_only():
+    import numpy as np
+    import pandas as pd
+    from forecast import frame
+    yms = [f"{y}-{m:02d}" for y in range(2001, 2005) for m in range(1, 13)]
+    values = np.arange(len(yms), dtype=float)
+    hm = pd.DataFrame({"ym": yms, "harmonized": values, "partial": False})
+    d = frame(hm)
+    jan = d[d["month"] == 1].reset_index(drop=True)
+    assert np.isnan(jan["clim"].iloc[0])
+    assert jan["clim"].iloc[2] == np.median(np.log1p([values[0], values[12]]))

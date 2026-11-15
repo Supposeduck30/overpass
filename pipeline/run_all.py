@@ -11,7 +11,7 @@ import sys
 
 from lib.io import PIPELINE
 
-STAGES = ["fetch", "clean", "grid", "aggregate", "calibrate", "validate", "clock", "nowcast", "export"]
+STAGES = ["fetch", "clean", "grid", "aggregate", "calibrate", "validate", "clock", "nowcast", "forecast", "export"]
 
 
 def main() -> None:
