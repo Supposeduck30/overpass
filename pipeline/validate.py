@@ -58,11 +58,17 @@ def seam_tests(hm: pd.DataFrame, notes: list[str]) -> dict:
         pett[name] = {"ym": s["ym"].iloc[k], "p": p}
     out["pettitt"] = pett
     if pett["harmonized"]["p"] < 0.05:
-        same = pett["aquaOnly"]["p"] < 0.05
-        notes.append(f"Pettitt's test still finds a change point in the harmonized series ({pett['harmonized']['ym']}). "
-                     + (f"Aqua alone, one instrument throughout, shows one too ({pett['aquaOnly']['ym']}), so this is a change "
-                        "in burning rather than a satellite seam." if same else
-                        "Aqua alone does not show one, so a leftover seam cannot be ruled out."))
+        months = lambda ym: int(ym[:4]) * 12 + int(ym[5:])
+        apart = abs(months(pett["harmonized"]["ym"]) - months(pett["aquaOnly"]["ym"]))
+        if pett["aquaOnly"]["p"] >= 0.05:
+            verdict = "Aqua alone does not show one, so a leftover seam cannot be ruled out."
+        elif apart <= 12:
+            verdict = (f"Aqua alone, one instrument throughout, shows one too ({pett['aquaOnly']['ym']}), so this is a change "
+                       "in burning rather than a satellite seam.")
+        else:
+            verdict = (f"Aqua alone, one instrument throughout, puts its change point at {pett['aquaOnly']['ym']}, a different "
+                       "date, so the single-instrument check neither confirms nor rules out a leftover seam.")
+        notes.append(f"Pettitt's test still finds a change point in the harmonized series ({pett['harmonized']['ym']}). {verdict}")
     notes.append("Seam step intervals treat the translated values as fixed; they do not include translation uncertainty.")
     return out
 
