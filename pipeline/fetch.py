@@ -69,9 +69,30 @@ def fetch_availability(cfg: dict) -> pd.DataFrame:
     return df
 
 
+def stream_year(url: str, tmp, bbox: list[float]) -> int | None:
+    """Write the rows of one country-year file that fall inside the bbox. None if the file does not exist."""
+    w, s, e, n = bbox
+    r = get(url, stream=True)
+    if r.status_code == 404:
+        return None
+    kept = 0
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        lines = r.iter_lines(decode_unicode=True)
+        header = next(lines)
+        assert header.split(",")[:2] == ["latitude", "longitude"], f"{url}: unexpected header {header}"
+        f.write(header + "\n")
+        for line in lines:
+            if not line:
+                continue
+            a, b, _ = line.split(",", 2)
+            if s <= float(a) < n and w <= float(b) < e:
+                f.write(line + "\n")
+                kept += 1
+    return kept
+
+
 def fetch_archive(cfg: dict, region: dict, only_missing: bool) -> dict:
     """Stream each country-year file, keep rows inside the bbox. Returns last year per product."""
-    w, s, e, n = region["bbox"]
     out_dir = DATA / "raw" / region["id"] / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
     last_year, rows = {}, {}
@@ -82,26 +103,21 @@ def fetch_archive(cfg: dict, region: dict, only_missing: bool) -> dict:
                 last_year[product] = year
                 continue
             url = f"{cfg['archive_base']}/{product}/{year}/{product}_{year}_{region['country']}.csv"
-            r = get(url, stream=True)
-            if r.status_code == 404:
+            tmp = out.with_suffix(".part")
+            kept = None
+            for attempt in range(1, 5):
+                try:
+                    kept = stream_year(url, tmp, region["bbox"])
+                    break
+                except requests.RequestException as e:
+                    # A long country file can drop mid-stream; the partial file is discarded and re-read.
+                    if attempt == 4:
+                        raise SystemExit(f"FETCH FAILED {url}: {type(e).__name__}")
+                    time.sleep(10 * attempt)
+            if kept is None:
                 if year == first:
                     raise SystemExit(f"FETCH FAILED {url}: 404 on the first year; check the country name")
                 break
-            tmp = out.with_suffix(".part")
-            kept = 0
-            with open(tmp, "w", encoding="utf-8", newline="\n") as f:
-                lines = r.iter_lines(decode_unicode=True)
-                header = next(lines)
-                cols = header.split(",")
-                assert cols[:2] == ["latitude", "longitude"], f"{url}: unexpected header {header}"
-                f.write(header + "\n")
-                for line in lines:
-                    if not line:
-                        continue
-                    a, b, _ = line.split(",", 2)
-                    if s <= float(a) < n and w <= float(b) < e:
-                        f.write(line + "\n")
-                        kept += 1
             tmp.replace(out)
             last_year[product] = year
             rows[out.name] = kept

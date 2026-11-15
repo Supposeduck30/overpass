@@ -52,10 +52,17 @@ def seam_tests(hm: pd.DataFrame, notes: list[str]) -> dict:
         notes.append("The NOAA-20 handoff seam cannot be step-tested yet: no full month of NOAA-20-only data exists. "
                      "The handoff is checked on the 2020–2026 overlap instead (see the handoff figure).")
     pett = {}
-    for name, y in (("raw", y_raw), ("harmonized", y_h)):
+    # Aqua alone is one instrument for the whole record: a change point it also shows is real burning, not a seam.
+    for name, y in (("raw", y_raw), ("harmonized", y_h), ("aquaOnly", np.log1p(s["raw_aqua"].to_numpy(float)))):
         k, p = pettitt(deseasonalize(y, month))
         pett[name] = {"ym": s["ym"].iloc[k], "p": p}
     out["pettitt"] = pett
+    if pett["harmonized"]["p"] < 0.05:
+        same = pett["aquaOnly"]["p"] < 0.05
+        notes.append(f"Pettitt's test still finds a change point in the harmonized series ({pett['harmonized']['ym']}). "
+                     + (f"Aqua alone, one instrument throughout, shows one too ({pett['aquaOnly']['ym']}), so this is a change "
+                        "in burning rather than a satellite seam." if same else
+                        "Aqua alone does not show one, so a leftover seam cannot be ruled out."))
     notes.append("Seam step intervals treat the translated values as fixed; they do not include translation uncertainty.")
     return out
 
@@ -221,7 +228,8 @@ def summary(v: dict) -> str:
         f"= x{np.exp(seam['raw']['step']):.2f}; harmonized {seam['harmonized']['step']:+.2f} "
         f"[{seam['harmonized']['lo']:+.2f}, {seam['harmonized']['hi']:+.2f}] = x{np.exp(seam['harmonized']['step']):.2f}",
         f"Pettitt: raw {v['seams']['pettitt']['raw']['ym']} p={v['seams']['pettitt']['raw']['p']:.2g}; "
-        f"harmonized {v['seams']['pettitt']['harmonized']['ym']} p={v['seams']['pettitt']['harmonized']['p']:.2g}",
+        f"harmonized {v['seams']['pettitt']['harmonized']['ym']} p={v['seams']['pettitt']['harmonized']['p']:.2g}; "
+        f"Aqua only {v['seams']['pettitt']['aquaOnly']['ym']} p={v['seams']['pettitt']['aquaOnly']['p']:.2g}",
         "units (CV of monthly exchange rate; saturation in peak month): " + "; ".join(
             f"{u['unit']}{'*' if u['chosen'] else ''} {u['cv']:.2f}" + (f"/{u['saturation']:.0%}" if u["saturation"] is not None else "")
             for u in v["units"] if u["cv"] is not None),

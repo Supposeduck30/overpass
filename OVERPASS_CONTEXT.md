@@ -180,16 +180,16 @@ while downloading; the raw file is not kept.
 
 ## 6. Data sources
 
-Could not be fetched during planning (blocked from the planning sandbox): the FIRMS API docs
-and country-archive pages. Everything in this section is VERIFY-at-runtime.
+Checked against the live services on 14 Nov 2026; `NOTES.md` holds the availability table and
+row counts. Items below are stated as verified.
 
 ### 6.1 Country yearly archives (history, no key)
 - Products: MODIS C6.1 (Terra+Aqua, from 2000) and VIIRS S-NPP 375 m (from 2012). NOAA-20/21
   have no country archives.
-- Reported pattern (third-party source):
+- Verified pattern:
   `https://firms.modaps.eosdis.nasa.gov/data/country/{product}/{year}/{product}_{year}_{Country}.csv`
-  with `{product}` in `modis`, `viirs-snpp`. Check the index at
-  https://firms.modaps.eosdis.nasa.gov/country/ first; files may be `.csv` or zipped.
+  with `{product}` in `modis` (2000–2025) and `viirs-snpp` (2012–2025). Plain CSV. The current
+  year returns 404. Long files can drop mid-stream, so downloads retry.
 - Archive coverage ends where SP ends. Find the last SP date per source from the availability
   endpoint and fill the remainder from the Area API.
 
@@ -197,9 +197,10 @@ and country-archive pages. Everything in this section is VERIFY-at-runtime.
 - `https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/{SOURCE}/{W,S,E,N}/{DAY_RANGE}[/{YYYY-MM-DD}]`
   With a date: returns DATE … DATE+DAY_RANGE−1.
 - Sources: `MODIS_SP`, `MODIS_NRT`, `VIIRS_SNPP_SP`, `VIIRS_SNPP_NRT`, `VIIRS_NOAA20_SP`,
-  `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_NRT`.
-- `DAY_RANGE`: sources disagree (5 vs 10). **Code for 5** and loop.
-- Limit: 5,000 transactions per 10 minutes per key. Pace requests; back off on 429.
+  `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_SP`, `VIIRS_NOAA21_NRT`.
+- `DAY_RANGE`: verified 1 to 5. Loop in 5-day chunks.
+- Limit: 5,000 transactions per 10 minutes per key; a 5-day call costs about 10, so about 500
+  calls per 10 minutes. Wait the window out when limited.
 - Availability: `/api/data_availability/csv/{MAP_KEY}/all`. Call it first and log it.
 
 ### 6.3 What is fetched from where
@@ -209,19 +210,19 @@ and country-archive pages. Everything in this section is VERIFY-at-runtime.
 | Aqua + Terra MODIS | 2000 → last archive year | country archive |
 | Aqua MODIS | after archive → today | `MODIS_SP` then `MODIS_NRT` (drift chart only) |
 | S-NPP VIIRS | 2012 → last archive year | country archive |
-| S-NPP VIIRS | after archive → 2026-11-02 | `VIIRS_SNPP_SP` then `VIIRS_SNPP_NRT` (historical NRT may or may not still be served: check, and record the last date actually returned) |
+| S-NPP VIIRS | after archive → 2026-11-02 | `VIIRS_SNPP_SP` (to 2026-07-31) then `VIIRS_SNPP_NRT` (verified still served, 2026-08-01 to 2026-11-02) |
 | NOAA-20 VIIRS | 2020-01-01 (or first available) → today | `VIIRS_NOAA20_SP` then `VIIRS_NOAA20_NRT`, 5-day chunks |
-| NOAA-21 VIIRS | 2026 only | `VIIRS_NOAA21_NRT`, cross-check only |
+| NOAA-21 VIIRS | 2026 only | `VIIRS_NOAA21_SP` then `VIIRS_NOAA21_NRT`, cross-check only |
 
-NOAA-20 for one region is roughly 500 calls. Cache every response on disk by
+One region is roughly 700 area calls (about 500 of them NOAA-20). Cache every response on disk by
 (source, bbox, start date); a re-run makes zero calls.
 
-### 6.4 Columns (VERIFY, assert in code)
+### 6.4 Columns (verified, asserted in code)
 - MODIS: `latitude, longitude, brightness, scan, track, acq_date, acq_time, satellite,
-  instrument, confidence, version, bright_t31, frp, daynight` (+ `type` in SP/archive).
+  instrument, confidence, version, bright_t31, frp, daynight` (+ `type` in SP/archive; NRT has none).
 - VIIRS: same with `bright_ti4`, `bright_ti5`.
-- `satellite` values vary by file (`Aqua`/`Terra` or `A`/`T`; `N`, `N20`, `N21`, `1`…).
-  Print the unique values per file and map them explicitly. Unknown value = hard error.
+- `satellite` values seen: `Terra`, `Aqua`, `N` (S-NPP), `N20`, `N21`. They are mapped
+  explicitly (`A`/`T` also accepted). Unknown value = hard error.
 - `acq_time` is HHMM UTC, sometimes an integer without leading zeros. Zero-pad.
 
 ### 6.5 Supporting sources
@@ -392,17 +393,21 @@ cells sum to region; local-solar-date rollover at ±180° and at midnight.
 ```jsonc
 // regions.json
 [{ "id":"cordoba","name":"Córdoba, Argentina","bbox":[-65.8,-35.0,-61.7,-29.5],
-   "tier":"hero","fireYearStartMonth":7,"criticalMonths":[8,9,10] }]
+   "tier":"hero","fireYearStartMonth":3,"criticalMonths":[7,8,9,10,11],"hotspots":true }]
 
 // atlas.json
-[{ "id":"cordoba","model":"M3","exchangeRate":0,"lo":0,"hi":0,
-   "medApeOurs":0,"medApeGlobalFactor":0,"coverage90":0,"link2Factor":0 }]
+[{ "id":"cordoba","model":"M3","exchangeRate":0,"lo":0,"hi":0,"atSourceCount":0,
+   "medApeOurs":0,"medApeGlobalFactor":0,"coverage90":0,
+   "link2Factor":0,"link2Lo":0,"link2Hi":0,"link2Model":"M0" }]
 
 // {region}/monthly.json
-{ "region":"cordoba","unit":"VIIRS-equivalent fire-days",
-  "links":{ "aqua_snpp":{"model":"M3","params":{},"fit":"2012-02..2020-12"},
-            "noaa20_snpp":{"model":"identity|M1|…","params":{},"fit":"…"} },
-  "months":[{ "ym":"2002-07","harmonized":0,"lo":0,"hi":0,
+{ "region":"cordoba","unit":"VIIRS-equivalent fire-days","unitColumn":"fire_days",
+  "links":{ "aqua_snpp":{"model":"M3","params":{},"fit":"2012-02..2020-12",
+                         "factor":{"value":0,"lo":0,"hi":0},
+                         "exchange":{"atSourceCount":0,"rate":0,"lo":0,"hi":0},"coverage90":0},
+            "noaa20_snpp":{"model":"identity|M0|M1|…","params":{},"fit":"…"} },
+  "normals":[12 calendar-month medians of full months],
+  "months":[{ "ym":"2002-07","harmonized":0,"lo":0,"hi":0,"partial":true,
               "source":"terra-translated|aqua-translated|snpp|noaa20-translated",
               "raw":{"aqua":0,"terra":0,"snpp":null,"noaa20":null},
               "pixels":{"aqua":0,"snpp":null},"median":0,"percentile":0 }] }
@@ -424,9 +429,9 @@ cells sum to region; local-solar-date rollover at ±180° and at midnight.
 { "ladder":[{"model":"M0","medApe":0,"mae":0,"r2log":0,"bias":0,"chosen":false}],
   "forward":{"train":"2012-2017","test":"2018-2020","points":[{"ym":"","pred":0,"lo":0,"hi":0,"actual":0}]},
   "backward":{"train":"2016-2020","test":"2012-2015","points":[]},
-  "coverage90":0,
+  "coverage90":0,"coverage90Raw":0,"intervalScale":1,"ladderLink2":[],"driftEffect":{"detected":false},
   "seams":{"2012-02":{"raw":{"step":0,"lo":0,"hi":0},"harmonized":{"step":0,"lo":0,"hi":0}},
-           "pettitt":{"raw":{"ym":"","p":0},"harmonized":{"ym":"","p":0}}},
+           "pettitt":{"raw":{"ym":"","p":0},"harmonized":{"ym":"","p":0},"aquaOnly":{"ym":"","p":0}}},
   "units":[{"unit":"fire-days 0.25°","cv":0,"saturation":0,"chosen":true}],
   "drift":[{"year":2012,"aquaLst":0,"aquaLstIqr":[0,0],"snppLst":0,"terraLst":0,"ratio":0}],
   "handoff":{"factor":0,"lo":0,"hi":0,"points":[]},
