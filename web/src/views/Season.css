@@ -37,7 +37,7 @@
 .season-trends thead th {
   border-top: 0;
   font-weight: 600;
-  color: var(--slate);
+  color: var(--text-muted);
 }
 
 .season-trends tbody th {
@@ -69,6 +69,6 @@
 
   .season-trends td::before {
     content: attr(data-label) ": ";
-    color: var(--slate);
+    color: var(--text-muted);
   }
 }

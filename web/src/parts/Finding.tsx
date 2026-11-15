@@ -7,13 +7,19 @@ interface Props {
   /** One line on how to read the chart below. */
   how: ReactNode;
   level?: "h1" | "h2";
+  title?: string;
 }
 
-export function Finding({ children, how, level = "h1" }: Props) {
+export function Finding({ children, how, level = "h1", title }: Props) {
   const Tag = level;
   return (
     <header className="finding">
-      <Tag className="finding-sentence">{children}</Tag>
+      {title ? (
+        <>
+          <Tag className="finding-title">{title}</Tag>
+          <p className="finding-sentence">{children}</p>
+        </>
+      ) : <Tag className="finding-sentence">{children}</Tag>}
       <details className="finding-how">
         <summary>How to read this</summary>
         <p>{how}</p>

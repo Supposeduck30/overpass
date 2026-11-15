@@ -1,21 +1,25 @@
 :root {
-  --overcast: #e8ecef;
-  --chalk: #f6f8f9;
-  --night: #0b2343;
-  --slate: #566575;
-  --signal: #1f5fd1;
-  --sodium: #ffd84a;
+  --chalk: #faf5eb;
+  --night: #161722;
+  --sodium: #ffc164;
+  --workspace: #1b1d27;
+  --surface: #232530;
+  --control: #292c38;
+  --control-hover: #343745;
+  --text-muted: #b6b7c3;
+  --control-border: #7a7e8e;
+  --scrim: rgba(12, 13, 19, .72);
 
   /* Tints of the tokens above, for marks on plates. */
-  --plate-ink: rgba(246, 248, 249, 0.92);
-  --plate-ink-soft: rgba(246, 248, 249, 0.62);
-  --plate-rule: rgba(246, 248, 249, 0.5);
-  --plate-lift: #16325a;
-  --light-blue: #8fb8ff;
+  --plate-ink: rgba(250, 245, 235, 0.92);
+  --plate-ink-soft: rgba(250, 245, 235, 0.68);
+  --plate-rule: rgba(250, 245, 235, 0.5);
+  --plate-lift: #252934;
+  --light-blue: #8bd5cd;
 
   --u: 8px;
   --radius: 3px;
-  --outline: 1.5px solid var(--night);
+  --outline: 1px solid var(--control-border);
 
   --t13: 13px;
   --t15: 15px;
@@ -33,4 +37,8 @@
   :root {
     --gutter: 16px;
   }
+}
+:root {
+  --control-rule: rgba(250, 245, 235, 0.15);
+  --plate-edge: rgba(250, 245, 235, 0.20);
 }

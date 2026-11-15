@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useData } from "../data/context";
 import { seamSteps } from "../data/guards";
 import { loadCells, useLoad } from "../data/load";
@@ -7,8 +7,6 @@ import { useIsMobile, useTween, useWidth } from "../lib/hooks";
 import { cellValues } from "../lib/series";
 import { Finding, Waiting } from "../parts/Finding";
 import { Readout } from "../parts/Readout";
-import { CliffMelt } from "../scenes/CliffMelt";
-import { ColumnFlyover } from "../scenes/ColumnFlyover";
 import { FlatCells } from "../scenes/FlatCells";
 import { buildFlyover, describeColumn, place, type Column } from "../scenes/flyover";
 import { MiniCalendar } from "../scenes/MiniCalendar";
@@ -20,6 +18,12 @@ import { describe, handoffs, normalsAt, recordFinding } from "./calendarModel";
 import "./Scenes.css";
 
 const PLAY_MS = 320;
+const CliffMelt = lazy(() => import("../scenes/CliffMelt").then((m) => ({ default: m.CliffMelt })));
+const ColumnFlyover = lazy(() => import("../scenes/ColumnFlyover").then((m) => ({ default: m.ColumnFlyover })));
+
+function SceneLoading() {
+  return <p className="scenes-loading small" role="status">Loading the 3D scene…</p>;
+}
 
 /** Whether the 3D scene is on screen. Phones start on the flat twin; a browser without WebGL stays on it. */
 function useDepth(): { show3d: boolean; failed: boolean; toggle: () => void; fail: () => void; compact: boolean } {
@@ -43,9 +47,13 @@ function plateHeight(width: number, compact: boolean): number {
 function SceneSwitch() {
   const [url, setUrl] = useUrl();
   return (
-    <div className="seg" role="group" aria-label="Scene">
-      <button type="button" className="btn" aria-pressed={url.scene === "cliff"} onClick={() => setUrl({ scene: "cliff" })}>Cliff melt</button>
-      <button type="button" className="btn" aria-pressed={url.scene === "flyover"} onClick={() => setUrl({ scene: "flyover" })}>Column flyover</button>
+    <div className="scene-picker" role="group" aria-label="Scene">
+      <button type="button" className="btn" aria-pressed={url.scene === "cliff"} onClick={() => setUrl({ scene: "cliff" })}>
+        Cliff melt
+      </button>
+      <button type="button" className="btn" aria-pressed={url.scene === "flyover"} onClick={() => setUrl({ scene: "flyover" })}>
+        Column flyover
+      </button>
     </div>
   );
 }
@@ -79,14 +87,13 @@ function Cliff() {
 
   return (
     <section className="scenes">
-      <Finding how={depth.show3d
+      <Finding level="h2" title="The record as terrain" how={depth.show3d
         ? <>The record as land. Months run left to right and years from the back, {first.year}, to the front, {last.year}; height is that month's fire-days. Raw records show a wall where a more sensitive satellite took over. Harmonized lifts the older years onto the newer satellite's scale, and the wall goes.</>
         : <>Each row is a year and each column a month. Brighter means more fire-days. Dashed lines mark the months when the satellite behind the record changed; hatched months are translated from an older satellite.</>}>
         {recordFinding(record, url.mode, false, false, validation)}
       </Finding>
 
       <div className="scenes-controls">
-        <SceneSwitch />
         <div className="seg" role="group" aria-label="Record">
           <button type="button" className="btn" aria-pressed={url.mode === "r"} onClick={() => setUrl({ mode: "r" })}>Raw records</button>
           <button type="button" className="btn" aria-pressed={url.mode === "h"} onClick={() => setUrl({ mode: "h" })}>Harmonized</button>
@@ -97,8 +104,10 @@ function Cliff() {
 
       <div ref={wrap} className="plate scenes-plate" style={{ minHeight: height }}>
         {depth.show3d ? (
-          <CliffMelt months={record} k={k} ramp={url.ramp} handoffs={rules} active={active} onActive={setActive}
-            width={width} height={height} label={label} onFail={depth.fail} />
+          <Suspense fallback={<SceneLoading />}>
+            <CliffMelt months={record} k={k} ramp={url.ramp} handoffs={rules} active={active} onActive={setActive}
+              width={width} height={height} label={label} onFail={depth.fail} />
+          </Suspense>
         ) : (
           <CalendarPlate months={record} record={record} k={k} color="counts" ramp={url.ramp} handoffs={rules}
             criticalMonths={region.criticalMonths} active={active} onActive={setActive} width={width} compact={depth.compact} label={label} />
@@ -168,12 +177,11 @@ function Flyover({ cells }: { cells: Cells }) {
 
   return (
     <section className="scenes">
-      <Finding how={<>Each {depth.show3d ? "column" : "square"} is one grid cell of about 25 km, drawn where it is. {depth.show3d ? "Taller and brighter" : "Brighter"} means more fire-days in the chosen month. Move the month, or press Play to run through the record. Choose a cell to see its own calendar.</>}>
+      <Finding level="h2" title="Fire activity by location" how={<>Each {depth.show3d ? "column" : "square"} is one grid cell of about 25 km, drawn where it is. {depth.show3d ? "Taller and brighter" : "Brighter"} means more fire-days in the chosen month. Move the month, or press Play to run through the record. Choose a cell to see its own calendar.</>}>
         {finding}
       </Finding>
 
       <div className="scenes-controls">
-        <SceneSwitch />
         <div className="scenes-scrub">
           <label className="label" htmlFor="flyover-month">Month</label>
           <input id="flyover-month" type="range" min={0} max={lastIndex} step={1} value={mi}
@@ -197,8 +205,10 @@ function Flyover({ cells }: { cells: Cells }) {
 
       <div ref={wrap} className="plate scenes-plate" style={{ minHeight: depth.show3d ? height : undefined }}>
         {depth.show3d ? (
-          <ColumnFlyover columns={columns} grid={cells.grid} max={fly.max} bbox={region.bbox} ramp={url.ramp} selected={cell}
-            onHover={setHover} onPick={setCell} width={width} height={height} label={label} onFail={depth.fail} />
+          <Suspense fallback={<SceneLoading />}>
+            <ColumnFlyover columns={columns} grid={cells.grid} max={fly.max} bbox={region.bbox} ramp={url.ramp} selected={cell}
+              onHover={setHover} onPick={setCell} width={width} height={height} label={label} onFail={depth.fail} />
+          </Suspense>
         ) : (
           <FlatCells cells={cells} columns={columns} max={fly.max} bbox={region.bbox} ramp={url.ramp} selected={cell}
             onHover={setHover} onPick={setCell} width={width} label={label} />
@@ -224,5 +234,11 @@ function FlyoverLoader() {
 
 export default function Scenes() {
   const [url] = useUrl();
-  return url.scene === "flyover" ? <FlyoverLoader /> : <Cliff />;
+  return (
+    <div className="scenes-view">
+      <header className="view-title"><h1>Scenes</h1></header>
+      <SceneSwitch />
+      {url.scene === "flyover" ? <FlyoverLoader /> : <Cliff />}
+    </div>
+  );
 }

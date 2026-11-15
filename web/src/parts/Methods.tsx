@@ -102,7 +102,7 @@ export function Methods() {
           {meta.availability.map((a) => <tr key={a.data_id}><td>{a.data_id}</td><td>{a.min_date}</td><td>{a.max_date}</td></tr>)}
         </tbody>
       </table>
-      <p className="fine">Data built {utcStamp(meta.builtAt)} from commit {meta.commit || "unknown"}.</p>
+      <p className="fine">Data built <time className="telemetry" dateTime={meta.builtAt}>{utcStamp(meta.builtAt)}</time> from commit {meta.commit || "unknown"}.</p>
     </div>
   );
 }

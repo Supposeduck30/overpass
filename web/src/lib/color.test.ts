@@ -1,21 +1,29 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { TOKENS, contrastRatio, diverging, sequential, toOklch } from "./color";
+
+const theme = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf-8");
 
 const AA_TEXT = 4.5;
 const AA_GRAPHIC = 3;
 
-// Every text/ground pair the interface uses.
+function themeColor(token: string): string {
+  const color = theme.match(new RegExp(`--${token}:\\s*(#[0-9a-f]+);`, "i"))?.[1];
+  if (!color) throw new Error(`Missing theme color --${token}`);
+  return color;
+}
+
 const TEXT_PAIRS: [string, string, string][] = [
-  ["night on overcast", TOKENS.night, TOKENS.overcast],
-  ["night on chalk", TOKENS.night, TOKENS.chalk],
-  ["slate on overcast", TOKENS.slate, TOKENS.overcast],
-  ["slate on chalk", TOKENS.slate, TOKENS.chalk],
-  ["signal on overcast", TOKENS.signal, TOKENS.overcast],
-  ["signal on chalk", TOKENS.signal, TOKENS.chalk],
+  ["body text on workspace", themeColor("chalk"), themeColor("workspace")],
+  ["muted text on workspace", themeColor("text-muted"), themeColor("workspace")],
+  ["muted text on surface", themeColor("text-muted"), themeColor("surface")],
+  ["control text on hover", themeColor("chalk"), themeColor("control-hover")],
+  ["accent links on surface", themeColor("sodium"), themeColor("surface")],
+  ["selected control text on amber", themeColor("night"), themeColor("sodium")],
   ["chalk on night", TOKENS.chalk, TOKENS.night],
   ["sodium on night", TOKENS.sodium, TOKENS.night],
   ["light blue on night", TOKENS.lightBlue, TOKENS.night],
-  ["plate soft ink (chalk at 62%) on night", "#9CA7B4", TOKENS.night],
+  ["plate soft ink (chalk at 68%) on night", "#B1AEAB", TOKENS.night],
 ];
 
 describe("contrast", () => {
@@ -27,9 +35,9 @@ describe("contrast", () => {
     });
   }
 
-  it("focus rings meet the 3:1 graphic threshold", () => {
-    expect(contrastRatio(TOKENS.signal, TOKENS.overcast)).toBeGreaterThanOrEqual(AA_GRAPHIC);
-    expect(contrastRatio(TOKENS.sodium, TOKENS.night)).toBeGreaterThanOrEqual(AA_GRAPHIC);
+  it("focus rings and control borders meet the 3:1 graphic threshold", () => {
+    expect(contrastRatio(themeColor("sodium"), themeColor("control-hover"))).toBeGreaterThanOrEqual(AA_GRAPHIC);
+    expect(contrastRatio(themeColor("control-border"), themeColor("control"))).toBeGreaterThanOrEqual(AA_GRAPHIC);
   });
 });
 

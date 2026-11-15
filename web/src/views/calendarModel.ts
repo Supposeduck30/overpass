@@ -30,10 +30,11 @@ export function valueAt(m: CellValue, k: number): number {
 
 /** Calendar-month medians of whatever is on screen at k, index 0 = January. */
 export function normalsAt(months: CellValue[], k: number): (number | null)[] {
-  return Array.from({ length: 12 }, (_, i) => {
-    const v = months.filter((m) => m.month === i + 1 && !m.partial).map((m) => valueAt(m, k));
-    return v.length ? median(v) : null;
-  });
+  const buckets = Array.from({ length: 12 }, () => [] as number[]);
+  for (const m of months) {
+    if (!m.partial) buckets[m.month - 1].push(valueAt(m, k));
+  }
+  return buckets.map((v) => v.length ? median(v) : null);
 }
 
 /** Relative width of a translated month's interval, used for hatch density. 0 for measured months. */

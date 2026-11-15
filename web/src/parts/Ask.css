@@ -19,7 +19,7 @@
 
 .ask-label {
   font-size: var(--t13);
-  color: var(--slate);
+  color: var(--text-muted);
 }
 
 .ask-form {

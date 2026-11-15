@@ -41,7 +41,8 @@ export default function Calendar() {
   const scaleMax = useMemo(() => Math.max(1, ...sel.months.map((m) => Math.max(m.raw ?? 0, m.harmonized))), [sel.months]);
 
   if (sel.error) return <Waiting what="The box" error={`${sel.error} Clear the box from Area to go back to the whole region.`} />;
-  if (sel.loading || !months.length) return <Waiting what="Calendar" />;
+  if (sel.loading) return <Waiting what="Calendar" />;
+  if (!months.length) return <p className="waiting" role="status">No months in this range. Choose a wider range above.</p>;
 
   const activeMonth = months.find((m) => m.ym === active);
   const last = sel.months[sel.months.length - 1];
@@ -53,8 +54,8 @@ export default function Calendar() {
       : "";
 
   return (
-    <section className="calendar">
-      <Finding how={<>Each row is a year and each column a month. Brighter means more {unitWord}; a fire-day is one grid cell of about 25 km with fire seen on one day. Dashed lines mark the months when the satellite behind the record changed. Hatched months are translated from an older satellite, with denser hatching where the translation is less certain.</>}>
+    <section className="calendar" id="fire-record" tabIndex={-1} aria-label="Fire calendar">
+      <Finding level="h2" title="Fire calendar" how={<>Each row is a year and each column a month. Brighter means more {unitWord}; a fire-day is one grid cell of about 25 km with fire seen on one day. Dashed lines mark the months when the satellite behind the record changed. Hatched months are translated from an older satellite, with denser hatching where the translation is less certain.</>}>
         {recordFinding(months, mode, px, sel.boxed, validation)}
       </Finding>
 
@@ -67,34 +68,45 @@ export default function Calendar() {
           <button type="button" className="btn" aria-pressed={url.color === "counts"} onClick={() => setUrl({ color: "counts" })}>Counts</button>
           <button type="button" className="btn" aria-pressed={url.color === "normal"} onClick={() => setUrl({ color: "normal" })}>Versus normal</button>
         </div>
-        <label>
-          <span className="sr-only">Unit</span>
-          <select className="field" value={px ? "px" : "fd"} disabled={sel.boxed} onChange={(e) => setUrl({ unit: e.target.value as "fd" | "px" })}>
-            <option value="fd">Fire-days</option>
-            <option value="px">Detections (raw only)</option>
-          </select>
-        </label>
-        <label>
-          <span className="sr-only">Color ramp</span>
-          <select className="field" value={url.ramp} onChange={(e) => setUrl({ ramp: e.target.value as "cividis" | "greys" })}>
-            <option value="cividis">Cividis ramp</option>
-            <option value="greys">Greys ramp</option>
-          </select>
-        </label>
         <button type="button" className="btn" aria-pressed={url.table} onClick={() => setUrl({ table: !url.table })}>
           {url.table ? "Show calendar" : "Show table"}
         </button>
+        <details className="calendar-display">
+          <summary className="btn">Display</summary>
+          <div className="calendar-display-fields">
+            <label>
+              <span className="label">Unit</span>
+              <select className="field" value={px ? "px" : "fd"} disabled={sel.boxed} onChange={(e) => setUrl({ unit: e.target.value as "fd" | "px" })}>
+                <option value="fd">Fire-days</option>
+                <option value="px">Detections (raw only)</option>
+              </select>
+            </label>
+            <label>
+              <span className="label">Color ramp</span>
+              <select className="field" value={url.ramp} onChange={(e) => setUrl({ ramp: e.target.value as "cividis" | "greys" })}>
+                <option value="cividis">Cividis ramp</option>
+                <option value="greys">Greys ramp</option>
+              </select>
+            </label>
+          </div>
+        </details>
       </div>
-      <p className="calendar-why fine">{why}</p>
+      {why && <p className="calendar-why fine">{why}</p>}
 
-      <div ref={wrap} className="calendar-plate">
-        {url.table ? (
-          <TableTwin caption={`Monthly record for ${region.name}`} columns={TABLE} rows={months} maxHeight={640} />
-        ) : (
-          <CalendarPlate months={months} record={sel.months} k={k} color={url.color} ramp={url.ramp} handoffs={rules}
-            criticalMonths={region.criticalMonths} active={active} onActive={setActive} width={width} compact={compact}
-            label={`Calendar of monthly ${unitWord} for ${region.name}, ${months[0].year} to ${months[months.length - 1].year}. Arrow keys move between months; the line below reads each one out.`} />
-        )}
+      <div className={url.table ? "calendar-panel" : "calendar-panel calendar-panel-chart"}>
+        <div className="calendar-caption">
+          <span>{sel.boxed ? "Your selected area" : region.name}</span>
+          <span>{monthLabel(months[0].ym)} <span aria-hidden="true">/</span><span className="sr-only"> to </span> {monthLabel(months[months.length - 1].ym)}</span>
+        </div>
+        <div ref={wrap} className="calendar-plate">
+          {url.table ? (
+            <TableTwin caption={`Monthly record for ${region.name}`} columns={TABLE} rows={months} maxHeight={640} />
+          ) : (
+            <CalendarPlate months={months} record={sel.months} k={k} color={url.color} ramp={url.ramp} handoffs={rules}
+              unit={unitWord} criticalMonths={region.criticalMonths} active={active} onActive={setActive} width={width} compact={compact}
+              label={`Calendar of monthly ${unitWord} for ${region.name}, ${months[0].year} to ${months[months.length - 1].year}. Arrow keys move between months; the line below reads each one out.`} />
+          )}
+        </div>
       </div>
 
       {!url.table && (

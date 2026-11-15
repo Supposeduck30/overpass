@@ -37,7 +37,7 @@
 .figure-year input {
   width: 280px;
   max-width: 44vw;
-  accent-color: var(--night);
+  accent-color: var(--sodium);
 }
 
 .figure-year output {

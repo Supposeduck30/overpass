@@ -17,7 +17,7 @@ export const PLATE_STYLE: StyleSpecification = {
   },
   layers: [
     { id: "sea", type: "background", paint: { "background-color": TOKENS.night } },
-    { id: "land", type: "fill", source: "land", paint: { "fill-color": "#16325A" } },
+    { id: "land", type: "fill", source: "land", paint: { "fill-color": TOKENS.plateLift } },
     { id: "admin1", type: "line", source: "admin1", minzoom: 3, paint: { "line-color": TOKENS.chalk, "line-opacity": 0.4, "line-width": 0.8 } },
     { id: "countries", type: "line", source: "countries", paint: { "line-color": TOKENS.chalk, "line-opacity": 0.7, "line-width": 1.2 } },
   ],
