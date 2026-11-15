@@ -1,0 +1,84 @@
+{
+ "builtAt": "2026-11-15T02:03:16Z",
+ "commit": "99987ce",
+ "availability": [
+  {
+   "data_id": "MODIS_NRT",
+   "min_date": "2026-09-01",
+   "max_date": "2026-11-14"
+  },
+  {
+   "data_id": "MODIS_SP",
+   "min_date": "2000-11-01",
+   "max_date": "2026-08-31"
+  },
+  {
+   "data_id": "VIIRS_NOAA20_NRT",
+   "min_date": "2026-08-01",
+   "max_date": "2026-11-14"
+  },
+  {
+   "data_id": "VIIRS_NOAA20_SP",
+   "min_date": "2018-04-01",
+   "max_date": "2026-07-31"
+  },
+  {
+   "data_id": "VIIRS_NOAA21_NRT",
+   "min_date": "2024-01-17",
+   "max_date": "2026-11-14"
+  },
+  {
+   "data_id": "VIIRS_NOAA21_SP",
+   "min_date": "2023-03-01",
+   "max_date": "2026-07-31"
+  },
+  {
+   "data_id": "VIIRS_SNPP_NRT",
+   "min_date": "2026-08-01",
+   "max_date": "2026-11-02"
+  },
+  {
+   "data_id": "VIIRS_SNPP_SP",
+   "min_date": "2012-01-20",
+   "max_date": "2026-07-31"
+  },
+  {
+   "data_id": "LANDSAT_NRT",
+   "min_date": "2022-06-20",
+   "max_date": "2026-11-14"
+  },
+  {
+   "data_id": "GOES_NRT",
+   "min_date": "2022-08-09",
+   "max_date": "2026-11-15"
+  },
+  {
+   "data_id": "BA_MODIS",
+   "min_date": "2000-11-01",
+   "max_date": "2026-08-01"
+  },
+  {
+   "data_id": "BA_VIIRS",
+   "min_date": "2012-03-01",
+   "max_date": "2026-08-01"
+  }
+ ],
+ "lastDate": {
+  "cordoba": {
+   "aqua": "2026-11-13",
+   "noaa20": "2026-11-13",
+   "noaa21": "2026-11-14",
+   "snpp": "2026-11-01",
+   "terra": "2026-11-13"
+  },
+  "california": {
+   "aqua": "2026-11-12",
+   "noaa20": "2026-11-14",
+   "noaa21": "2026-11-14",
+   "snpp": "2026-11-01",
+   "terra": "2026-11-13"
+  }
+ },
+ "hotspotsDropped": [],
+ "sizeMb": 25.8
+}

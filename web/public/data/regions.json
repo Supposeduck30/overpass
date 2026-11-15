@@ -1,0 +1,44 @@
+[
+ {
+  "id": "cordoba",
+  "name": "Córdoba, Argentina",
+  "bbox": [
+   -65.8,
+   -35.0,
+   -61.7,
+   -29.5
+  ],
+  "tier": "hero",
+  "fireYearStartMonth": 3,
+  "criticalMonths": [
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "hotspots": true
+ },
+ {
+  "id": "california",
+  "name": "California, USA",
+  "bbox": [
+   -124.5,
+   32.5,
+   -114.1,
+   42.0
+  ],
+  "tier": "hero",
+  "fireYearStartMonth": 2,
+  "criticalMonths": [
+   2,
+   3,
+   4,
+   8,
+   9,
+   10,
+   11
+  ],
+  "hotspots": true
+ }
+]

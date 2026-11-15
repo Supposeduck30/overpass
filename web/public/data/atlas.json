@@ -1,0 +1,32 @@
+[
+ {
+  "id": "cordoba",
+  "model": "M3",
+  "exchangeRate": 3.55473,
+  "lo": 3.36845,
+  "hi": 3.74921,
+  "atSourceCount": 43.0,
+  "medApeOurs": 0.12163,
+  "medApeGlobalFactor": 0.22094,
+  "coverage90": 0.8972,
+  "link2Factor": 0.96071,
+  "link2Lo": 0.95042,
+  "link2Hi": 0.97177,
+  "link2Model": "M1"
+ },
+ {
+  "id": "california",
+  "model": "M3",
+  "exchangeRate": 4.08263,
+  "lo": 3.87412,
+  "hi": 4.28178,
+  "atSourceCount": 91.0,
+  "medApeOurs": 0.12573,
+  "medApeGlobalFactor": 0.24176,
+  "coverage90": 0.85047,
+  "link2Factor": 0.90516,
+  "link2Lo": 0.89168,
+  "link2Hi": 0.91754,
+  "link2Model": "M0"
+ }
+]
