@@ -1,9 +1,9 @@
 # Overpass
 
-One fire record from 2002 to today, across three satellites.
+One fire record from November 2000 to today, across four satellites.
 
 Overpass is the Overpass team's entry for the NASA Space Apps Challenge 2026, "Harmonization of
-MODIS and VIIRS Hot Spots". Aqua MODIS, S-NPP VIIRS and NOAA-20 VIIRS see very different numbers
+MODIS and VIIRS Hot Spots". Terra and Aqua MODIS, S-NPP VIIRS and NOAA-20 VIIRS see very different numbers
 of fires for the same burning, so their records cannot be joined end to end. Overpass translates
 the older and the newer records into what S-NPP VIIRS would have counted, using the years when
 two satellites flew together, and checks every translation on years it was not fitted on.
