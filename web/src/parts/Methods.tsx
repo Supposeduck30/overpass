@@ -21,28 +21,36 @@ function linkLine(link: Link): string {
 export function Methods() {
   const [, setUrl] = useUrl();
   const { region, monthly, validation, meta } = useData();
+  const { terraCheck } = validation;
   const first = monthly.months[0].ym;
+  const firstAqua = monthly.months.find((m) => m.source === "aqua-translated")?.ym;
   const firstSnpp = monthly.months.find((m) => m.source === "snpp")?.ym;
   const firstNoaa = monthly.months.find((m) => m.source === "noaa20-translated")?.ym;
 
   return (
     <div className="methods">
       <p>
-        Three satellites have watched {region.name} for fire since {monthLabel(first)}. They see different numbers of
+        Four satellites have watched {region.name} for fire since {monthLabel(first)}. They see different numbers of
         fires for the same burning, so their counts cannot be joined end to end. Overpass translates the older and the
         newer records into what S-NPP VIIRS would have counted, using the years when two satellites flew together.
       </p>
 
       <h3>The record</h3>
       <ul>
-        <li>{monthLabel(first)} to {firstSnpp ? monthLabel(firstSnpp) : "today"}: Aqua MODIS, translated.</li>
+        {firstAqua && first < firstAqua && <li>{monthLabel(first)} to {monthLabel(firstAqua)}: Terra MODIS, translated.</li>}
+        <li>{monthLabel(firstAqua ?? first)} to {firstSnpp ? monthLabel(firstSnpp) : "today"}: Aqua MODIS, translated.</li>
         {firstSnpp && <li>{monthLabel(firstSnpp)} to {firstNoaa ? monthLabel(firstNoaa) : "today"}: S-NPP VIIRS, measured. No translation.</li>}
         {firstNoaa && <li>From {monthLabel(firstNoaa)}: NOAA-20 VIIRS, translated.</li>}
       </ul>
 
-      <h3>The two translations</h3>
+      <h3>The translations</h3>
       <p><strong>Aqua to S-NPP.</strong> {linkLine(monthly.links.aqua_snpp)}</p>
       <p><strong>NOAA-20 to S-NPP.</strong> {linkLine(monthly.links.noaa20_snpp)}</p>
+      <p>
+        <strong>Terra to S-NPP.</strong> {linkLine(monthly.links.terra_snpp)} Used only before Aqua's first full month.
+        As a check, Terra and Aqua were each translated on their own for {terraCheck.months.replace("..", " to ")}, years
+        neither translation was fitted on: Terra's total came to {percent(terraCheck.totalRatio)} of Aqua's.
+      </p>
       <p>
         Each translation is chosen from five candidate models by leaving one year out at a time and predicting it. A
         more complex model is used only if it beats the simpler one by more than 5%.{" "}

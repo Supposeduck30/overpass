@@ -59,7 +59,7 @@ export function asMonthly(v: unknown): Monthly {
   const f = "monthly.json";
   check(f, v, { region: "string", unit: "string", links: "object", normals: "array", months: "array" });
   const m = v as Monthly;
-  for (const key of ["aqua_snpp", "noaa20_snpp"] as const) {
+  for (const key of ["terra_snpp", "aqua_snpp", "noaa20_snpp"] as const) {
     check(f, m.links[key], { model: "string", params: "object", fit: "string", factor: "object", exchange: "object" }, `links.${key}`);
   }
   checkList(f, m.months, { ym: "string", harmonized: "number", lo: "number", hi: "number", source: "string", partial: "boolean", raw: "object", pixels: "object" }, "months");
@@ -90,7 +90,7 @@ export function asClock(v: unknown): Clock {
 
 export function asValidation(v: unknown): Validation {
   const f = "validation.json";
-  check(f, v, { ladder: "array", ladderLink2: "array", forward: "object", backward: "object", coverage90: "number", seams: "object", units: "array", drift: "array", driftEffect: "object", handoff: "object", exchange: "object", topYears: "array", notes: "array" });
+  check(f, v, { ladder: "array", ladderLink2: "array", forward: "object", backward: "object", coverage90: "number", seams: "object", units: "array", drift: "array", driftEffect: "object", handoff: "object", terraCheck: "object", exchange: "object", topYears: "array", notes: "array" });
   const val = v as Validation;
   checkList(f, val.ladder, { model: "string", chosen: "boolean", n: "number" }, "ladder");
   for (const key of ["forward", "backward"] as const) {

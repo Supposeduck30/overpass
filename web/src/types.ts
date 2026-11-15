@@ -56,7 +56,7 @@ export interface Monthly {
   region: string;
   unit: string;
   unitColumn: string;
-  links: { aqua_snpp: Link; noaa20_snpp: Link };
+  links: { terra_snpp: Link; aqua_snpp: Link; noaa20_snpp: Link };
   normals: (number | null)[];
   months: Month[];
 }
@@ -216,6 +216,8 @@ export interface Validation {
     noaa21?: { months: string; ratioToNoaa20: number };
   };
   exchange: { atSourceCount: number; rate: number; lo: number; hi: number };
+  /** Terra and Aqua each translated on their own for the years before S-NPP. */
+  terraCheck: { months: string; totalRatio: number; years: { year: number; terra: number; aqua: number }[] };
   topYears: { year: number; total: number }[];
   pooledRegions: string[];
   notes: string[];

@@ -115,7 +115,7 @@ export function Frame({ children }: { children: ReactNode }) {
         <div className="frame-hint">
           {showHint && (
             <p>
-              Rows above 2012 come from an older, coarser satellite. Try <strong>Harmonized</strong> to put every year on one scale.{" "}
+              Rows above 2012 come from older, coarser satellites. Try <strong>Harmonized</strong> to put every year on one scale.{" "}
               <button type="button" className="btn btn-quiet" onClick={dismissHint}>Dismiss</button>
             </p>
           )}
