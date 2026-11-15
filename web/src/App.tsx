@@ -11,12 +11,8 @@ const VIEWS: Record<View, React.ComponentType> = {
   month: lazy(() => import("./views/ThisMonth")),
   season: lazy(() => import("./views/Season")),
   evidence: lazy(() => import("./views/Evidence")),
-  scenes: NotBuilt,
+  scenes: lazy(() => import("./views/Scenes")),
 };
-
-function NotBuilt() {
-  return <p>This view is not built yet.</p>;
-}
 
 export function App() {
   const urlState = useUrlState();
