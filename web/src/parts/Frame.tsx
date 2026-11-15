@@ -5,6 +5,7 @@ import { useStoredFlag } from "../lib/hooks";
 import { useUrl, VIEW_NAMES, VIEWS } from "../state/url";
 import { dialGlyphSvg } from "./Dial";
 import { Downloads } from "./Downloads";
+import { Ask, useAskEnabled } from "./Ask";
 import { Drawer } from "./Drawer";
 import { Methods } from "./Methods";
 import { RangeSlider } from "./RangeSlider";
@@ -62,6 +63,7 @@ export function Frame({ children }: { children: ReactNode }) {
   const y0 = ymParts(span[0]).year;
   const y1 = ymParts(span[1]).year;
   const close = () => setUrl({ panel: null });
+  const askOn = useAskEnabled();
   const showHint = !hintSeen && url.v === "calendar" && url.mode === "r" && !url.tour;
 
   return (
@@ -105,6 +107,11 @@ export function Frame({ children }: { children: ReactNode }) {
           <button type="button" className="btn" aria-pressed={url.tour} onClick={() => setUrl({ tour: !url.tour, panel: null })}>
             {url.tour ? "Stop tour" : "Play tour"}
           </button>
+          {askOn && (
+            <button type="button" className="btn" aria-pressed={url.panel === "ask"} onClick={() => setUrl({ panel: "ask" })}>
+              Ask
+            </button>
+          )}
           <button type="button" className="btn" aria-pressed={url.panel === "methods"} onClick={() => setUrl({ panel: "methods" })}>
             Methods
           </button>
@@ -139,6 +146,7 @@ export function Frame({ children }: { children: ReactNode }) {
       </nav>
 
       {url.panel === "methods" && <Drawer title="Methods" onClose={close}><Methods /></Drawer>}
+      {url.panel === "ask" && askOn && <Drawer title="Ask about the record" onClose={close}><Ask /></Drawer>}
       {url.panel === "keys" && (
         <Drawer title="Keyboard shortcuts" onClose={close}>
           <dl className="frame-keys">
