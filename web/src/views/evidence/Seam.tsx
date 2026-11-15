@@ -74,7 +74,7 @@ export function Seam() {
           <path d={path((d) => d.harmonized)} fill="none" stroke={TOKENS.chalk} strokeWidth={3} />
           {years.map((d) => <circle key={d.year} cx={x(d.year)} cy={y(d.harmonized)} r={3} fill={TOKENS.chalk} />)}
           <text x={x(years[0].year) + 8} y={y(years[0].raw ?? 0) + 20} fontSize={13} fill={PLATE.soft}>as recorded</text>
-          <text x={x(last.year)} y={y(last.harmonized) - 14} fontSize={13} fontWeight={600} textAnchor="end" fill={PLATE.ink}>harmonized</text>
+          <text x={x(last.year)} y={y(last.harmonized) + 24} fontSize={13} fontWeight={600} textAnchor="end" fill={PLATE.ink}>harmonized</text>
         </svg>
       </div>
       <p className="figure-note">{pettittLine} The step intervals treat translated values as fixed.</p>
