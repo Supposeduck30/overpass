@@ -1,6 +1,6 @@
 {
- "builtAt": "2026-11-15T08:05:23Z",
- "commit": "678e029",
+ "builtAt": "2026-11-15T08:52:41Z",
+ "commit": "a105a3c",
  "availability": [
   {
    "data_id": "MODIS_NRT",
@@ -105,11 +105,27 @@
    "noaa21": "2026-11-15",
    "snpp": "2026-11-02",
    "terra": "2026-11-14"
+  },
+  "se_australia": {
+   "aqua": "2026-11-15",
+   "noaa20": "2026-11-15",
+   "noaa21": "2026-11-15",
+   "snpp": "2026-11-03",
+   "terra": "2026-11-14"
+  },
+  "mato_grosso": {
+   "aqua": "2026-11-14",
+   "noaa20": "2026-11-14",
+   "noaa21": "2026-11-15",
+   "snpp": "2026-11-02",
+   "terra": "2026-11-14"
   }
  },
  "hotspotsDropped": [
+  "mato_grosso",
+  "se_australia",
   "kalimantan",
   "zambia"
  ],
- "sizeMb": 58.4
+ "sizeMb": 67.9
 }

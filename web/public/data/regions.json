@@ -115,5 +115,43 @@
    10
   ],
   "hotspots": false
+ },
+ {
+  "id": "se_australia",
+  "name": "Southeast Australia",
+  "bbox": [
+   140.9,
+   -39.2,
+   153.7,
+   -28.1
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 2,
+  "criticalMonths": [
+   3,
+   4,
+   5,
+   8,
+   9
+  ],
+  "hotspots": false
+ },
+ {
+  "id": "mato_grosso",
+  "name": "Mato Grosso, Brazil",
+  "bbox": [
+   -61.7,
+   -18.1,
+   -50.2,
+   -7.3
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 4,
+  "criticalMonths": [
+   8,
+   9,
+   10
+  ],
+  "hotspots": false
  }
 ]
