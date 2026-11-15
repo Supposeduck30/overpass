@@ -31,8 +31,8 @@ SESSION = requests.Session()
 
 
 def budget_spent(r: requests.Response) -> bool:
-    """FIRMS answers a spent transaction budget with HTTP 400 "Invalid MAP_KEY.", so ask the key's status."""
-    if r.status_code != 400 or "Invalid MAP_KEY" not in r.text[:100]:
+    """FIRMS answers a spent transaction budget with HTTP 400 or 401 "Invalid MAP_KEY.", so ask the key's status."""
+    if r.status_code not in (400, 401) or "Invalid MAP_KEY" not in r.text[:100]:
         return False
     status = SESSION.get(f"https://firms.modaps.eosdis.nasa.gov/mapserver/mapkey_status/?MAP_KEY={map_key()}", timeout=60)
     try:
