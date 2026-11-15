@@ -48,12 +48,13 @@ Web app (`web/package.json`):
 | three.js | 0.187.0 | MIT |
 | deck.gl (core, layers, mapbox) | 9.4.1 | MIT |
 | MapLibre GL JS | 6.18.0 | BSD-3-Clause |
+| Anthropic TypeScript SDK (`@anthropic-ai/sdk`, server side, Ask only) | 1.8.0 | MIT |
 | d3-array, d3-color, d3-interpolate, d3-scale, d3-scale-chromatic, d3-shape | 3.2.5, 3.1.1, 3.0.2, 4.0.3, 3.1.1, 3.2.1 | ISC |
 | Vite, Vitest, TypeScript, @vitejs/plugin-react | 8.3.8, 5.1.0, 7.0.2, 6.3.0 | MIT, MIT, Apache-2.0, MIT |
 
 Pipeline (`pipeline/requirements.txt`), Python 3.11: NumPy 2.4.6 (BSD-3-Clause), pandas 3.1.1
 (BSD-3-Clause), PyArrow 26.0.1 (Apache-2.0), PyYAML 6.0.3 (MIT), Requests 2.34.2 (Apache-2.0),
-pytest 9.2.0 (MIT).
+pytest 9.2.0 (MIT), scikit-learn 1.9.1 (BSD-3-Clause, forecast).
 
 ## Fonts
 

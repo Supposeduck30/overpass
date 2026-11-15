@@ -50,7 +50,9 @@ which is not committed; a re-run skips anything already fetched.
 The web app deploys to Vercel as a Vite project with `web/` as the root directory. Set
 `FIRMS_MAP_KEY` in the project's environment variables so `web/api/firms.ts` can call FIRMS.
 Without it every view still works from the committed data, and the live parts say they are
-unavailable.
+unavailable. Ask appears only when `LLM_API_KEY` is set (optionally `LLM_MODEL`; the default is
+`claude-opus-5-5`); its answers come only from the site's own data files and are labelled as
+AI-generated.
 
 ## How the method works, in short
 
