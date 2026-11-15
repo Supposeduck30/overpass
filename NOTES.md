@@ -98,3 +98,5 @@ Unit: fire-days at 0.25°. Reference: S-NPP.
 - Column Flyover opens on the record's busiest month when the URL names none. The selected cell is view state and is not written to the URL.
 - Cliff Melt glow is a threshold bloom pass over the whole frame rather than a selective one; only the brightest ridges pass the threshold.
 - Frame time while orbiting Cliff Melt at 1440 px on Intel Iris Xe (headless Chrome, D3D11): median 16.7 ms, 95th percentile 16.8 ms. The scene renders on demand, so it draws nothing while still.
+- Every region is its box cut to its country. Found on Portugal: the box takes in part of Spain, the per-country archives did not, and NOAA-20 (Area API, whole box) read 47% above S-NPP in 2020 to 2025. After the clip the NOAA-20 to S-NPP factor there is 0.93, in line with Córdoba and California. California lost a strip of Mexico the same way (18,421 raw rows); Córdoba is unchanged. A human should still check each box.
+- Hotspot downloads are written with a fixed gzip header so an unchanged year is byte-identical between runs.

@@ -40,5 +40,26 @@
    11
   ],
   "hotspots": true
+ },
+ {
+  "id": "portugal",
+  "name": "Portugal",
+  "bbox": [
+   -9.6,
+   36.9,
+   -6.1,
+   42.2
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 7,
+  "criticalMonths": [
+   7,
+   8,
+   9,
+   10,
+   3,
+   4
+  ],
+  "hotspots": true
  }
 ]

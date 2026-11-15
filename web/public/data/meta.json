@@ -1,11 +1,11 @@
 {
- "builtAt": "2026-11-15T02:03:16Z",
- "commit": "99987ce",
+ "builtAt": "2026-11-15T02:50:10Z",
+ "commit": "15251af",
  "availability": [
   {
    "data_id": "MODIS_NRT",
    "min_date": "2026-09-01",
-   "max_date": "2026-11-14"
+   "max_date": "2026-11-15"
   },
   {
    "data_id": "MODIS_SP",
@@ -77,8 +77,15 @@
    "noaa21": "2026-11-14",
    "snpp": "2026-11-01",
    "terra": "2026-11-13"
+  },
+  "portugal": {
+   "aqua": "2026-11-13",
+   "noaa20": "2026-11-13",
+   "noaa21": "2026-11-10",
+   "snpp": "2026-11-02",
+   "terra": "2026-11-04"
   }
  },
  "hotspotsDropped": [],
- "sizeMb": 25.8
+ "sizeMb": 28.8
 }
