@@ -3,7 +3,7 @@
 Running log of what was checked against real FIRMS data, what was decided, and what a person
 still has to look at. The final report goes at the top of this file when the build is done.
 
-## Final report (14 Nov 2026, evening)
+## Final report (15 Nov 2026, early morning)
 
 ### Deploy
 
@@ -16,40 +16,35 @@ The Vercel CLI is not installed on the build machine, so the site is not deploye
 
 ### Headline numbers
 
-The record runs from Nov 2000 (Terra) through Aqua (Aug 2002), S-NPP (Feb 2012) and NOAA-20 (Nov 2026).
+The record runs from Nov 2000 (Terra) through Aqua (Aug 2002), S-NPP (Feb 2012) and NOAA-20 (Nov 2026), for 10 regions. Hero regions are Córdoba and California.
 
-| | Córdoba, Argentina | California, USA |
-|---|---|---|
-| Aqua to S-NPP model (chosen by leave-one-year-out) | M3, median error 12.2% | M3, median error 13.4% |
-| One global factor, same test | 22.1% | 23.4% |
-| Exchange rate at the median burning month | ×3.55 (3.37–3.75) | ×4.07 (3.86–4.27) |
-| Step at Feb 2012, as recorded | ×2.51 (1.87–3.37) | ×3.63 (2.61–5.05) |
-| Step at Feb 2012, harmonized | ×0.83 (0.64–1.07) | ×0.90 (0.71–1.14) |
-| Backward test (fit 2016–2020, predict 2012–2015) | 14.5% error, 85% inside the 90% interval | 15.2% error, 79% inside |
-| Forward test (fit 2012–2017, predict 2018–2020) | 10.9% error, 94% inside | 14.4% error, 69% inside |
-| NOAA-20 to S-NPP | factor 0.961 (0.950–0.972) | 0.946 (0.934–0.956) |
-| Terra and Aqua translated separately, Aug 2002 to Dec 2011 | Terra total 114% of Aqua's | 98% |
-| Next-month forecast against the normal month (2016–2025) | 25.8% vs 45.9%, shown | 22.2% vs 20.2%, not shown |
-| Top fire year | 2003, 4,915 fire-days | 2020, 7,948 fire-days |
+| Region | Aqua→S-NPP model, held-out error | One global factor | Exchange rate | 2012 step, recorded | 2012 step, harmonized (90%) | Coverage, backward / forward | Terra total as % of Aqua, 2002–2011 | Forecast | Top five years |
+|---|---|---|---|---|---|---|---|---|---|
+| Córdoba | M3 12.2% | 24.6% | ×3.55 | ×2.51 | ×0.84 (0.65–1.08) | 85% / 94% | 99% | shown | 2003, 2004, 2006, 2005, 2008 |
+| California | M3 13.4% | 32.0% | ×4.07 | ×3.63 | ×0.90 (0.71–1.14) | 79% / 69% | 98% | not shown | 2020, 2021, 2008, 2017, 2018 |
+| Portugal | M4 19.7% | 37.2% | ×4.27 | ×3.58 | ×0.94 (0.58–1.53) | 89% / 94% | 105% | shown | 2005, 2017, 2003, 2009, 2012 |
+| Punjab–Haryana | M4 17.8% | 55.1% | ×6.92 | ×4.73 | ×1.13 (0.81–1.58) | 83% / 69% | 105% | shown | 2016, 2007, 2009, 2012, 2005 |
+| Central Kalimantan | M3 15.0% | 42.1% | ×5.33 | ×4.37 | ×1.05 (0.62–1.76) | 94% / 86% | 91% | shown | 2006, 2015, 2004, 2009, 2014 |
+| Zambia | M4 14.6% | 41.3% | ×6.88 | ×4.78 | ×1.13 (0.85–1.51) | 94% / 78% | 101% | not shown | 2005, 2013, 2012, 2016, 2019 |
+| Mato Grosso | M0 20.5% | 20.5% | ×2.65 | ×2.80 | ×1.07 (0.77–1.48) | 98% / 86% | 89% | shown | 2004, 2007, 2003, 2005, 2010 |
+| Southeast Australia | M3 16.5% | 37.9% | ×4.19 | ×5.18 | ×1.20 (0.94–1.51) | 85% / 75% | 91% | not shown | 2017, 2006, 2011, 2019, 2018 |
+| Alberta | M3 14.5% | 50.9% | ×5.90 | ×5.57 | ×0.94 (0.75–1.18) | 85% / 94% | 96% | not shown | 2023, 2015, 2021, 2018, 2003 |
+| Central Sakha | M4 22.3% | 57.0% | ×3.30 | ×3.88 | ×0.72 (0.38–1.35) | 98% / 94% | 101% | shown | 2021, 2020, 2011, 2012, 2014 |
 
-Atlas regions in the data: Portugal (M4, 19.7% against 30.0% for one factor; ×4.27) and
-Punjab–Haryana (M4, 17.8% against 50.0%; ×6.92). Kalimantan, Zambia, Mato Grosso, Southeast
-Australia, Alberta and Sakha were still fetching when this was written. For each one that
-finishes: `run_all.py --region X --from-stage clean --to-stage aggregate` (the background loop
-does this), then `run_all.py --all --from-stage calibrate`, then commit `web/public/data`.
+NOAA-20 reads 1 to 7% above S-NPP in every region, so link 2 is a factor everywhere (0.93 to 0.97).
 
 ### Which claims held
 
-- Held: the raw record jumps at the 2012 satellite change in every region (×2.5 to ×4.7), and harmonized it does not (every harmonized step interval includes ×1).
-- Held: a regional model beats one global factor in 4 of 4 regions.
-- Held, as a new check: Terra and Aqua, translated separately, agree on 2002–2011 totals within 5% in California, Portugal and Punjab. In Córdoba the Terra link fell back to the pooled factor and reads 14% high; the Methods drawer shows the figure.
-- Held with the §15 fallback: 90% intervals. Held-out coverage was short in several links and was widened from held-out residuals; California's forward and backward tests still cover only 69% and 79%, and Punjab's forward test 69%. The Evidence view says so.
-- Did not hold: "NOAA-20 is interchangeable with S-NPP". It reads 4 to 7% higher in every region; link 2 uses a factor.
-- Did not hold: "fire-days 0.25° is the steadiest unit". It is close to the steadiest in every region; the unit was kept and the Evidence view shows it.
-- Mixed: Aqua's drift. Measured in every region (+100 to +130 minutes by 2026). No clear effect in Córdoba, California and Portugal; a clear one in Punjab, where the S-NPP to Aqua ratio left its range in 5 of 5 recent years. Calibration stays on 2012–2020 everywhere.
+- Held: the raw record jumps at the 2012 satellite change in every region (×2.5 to ×5.6), and harmonized it does not: all 10 harmonized step intervals include ×1.
+- Held in 9 of 10: a regional model beats one global factor. In Mato Grosso the global factor was kept because M4 did not win consistently enough under the selection rule.
+- Held, as a new check: Terra and Aqua, translated separately, give 2002–2011 totals within 11% of each other in every region (89% to 105%).
+- Held with the §15 fallback: 90% intervals. Coverage was short in several links and was widened from held-out residuals; split tests still fall short in California (79% / 69%), Punjab (69% forward), Zambia (78%) and Southeast Australia (75%). The Evidence view says so for each.
+- Did not hold: "NOAA-20 is interchangeable with S-NPP". A factor beats identity in every region.
+- Did not hold: "fire-days 0.25° is the steadiest unit". It is close to the steadiest but not the steadiest in most regions; the unit was kept and the Evidence view shows it.
+- Mixed: Aqua's drift is measured in every region (+100 to +130 minutes by 2026). A clear effect on the S-NPP to Aqua ratio only in Punjab; calibration stays on 2012–2020 everywhere.
 - Not testable yet: a step at the Nov 2026 handoff (no NOAA-20-only month exists). The 2020–2026 overlap stands in.
-- Open: Pettitt still finds a change point in the harmonized series. In Córdoba and Portugal Aqua alone has the same date, which points to burning; in California it does not (2017-03 against 2009-05), so a leftover seam there is not ruled out. The app says this.
-- Season: Portugal's (+45.6 days per decade) and Punjab's (+34.5) peak-date trends cross the satellite change on a date the satellites disagree about; the app flags them as possible artifacts.
+- Open: Pettitt still finds a harmonized change point in 7 regions. Aqua alone agrees on the date in Córdoba, Portugal, Kalimantan and Southeast Australia (change in burning). It disagrees in California, Mato Grosso and Sakha; in Sakha the harmonized break (Oct 2012) sits next to the handoff, so a leftover seam there cannot be ruled out. The app says this per region.
+- Forecast: beats the normal month in 6 of 10 regions and is shown only there. In Sakha it is shown but only just (84.3% against 89.4%), and in Kalimantan it loses to persistence; Evidence shows all three bars.
 
 ### Cut
 
@@ -60,7 +55,7 @@ every string would need a second copy reviewed by a speaker).
 ### A person must check
 
 - Every region box in `pipeline/config.yaml`, and that clipping to the country outline is what the team wants (see the decision on Portugal below).
-- The top five fire years per region against local knowledge (Córdoba 2003, 2004, 2006, 2005, 2008; California 2020, 2021, 2008, 2017, 2018; Portugal 2005, 2017, 2003, 2009, 2012; Punjab–Haryana 2016, 2007, 2009, 2012, 2005).
+- The top five fire years per region (table above) against local knowledge. Calendar years split some seasons (Southeast Australia's 2019–20 Black Summer; Alberta 2016 Fort McMurray is not in its top five by fire-days).
 - `REFERENCES.md`: paper citations were written from memory of the literature and need checking against the originals.
 - Whether the Pettitt reading for Córdoba (less burning after 2012) matches local records.
 - Ask, once `LLM_API_KEY` is set: it has not been run against the model.
@@ -79,7 +74,7 @@ Keyboard: skip link first, then every control in order with a 2 px focus outline
 
 ### Production build
 
-Initial load: `index` 251.7 kB (80.4 kB gzip) plus 12.7 kB CSS and fonts. Lazy chunks: Scenes 1,229 kB (327 kB gzip; three.js and deck.gl), map style 1,058 kB (289 kB gzip; MapLibre, loaded with Area or the flyover), Evidence 28 kB, Season 8 kB, This month 8 kB. `web/public/data` is 28 MB, most of it California's hotspot archive (19.7 MB).
+Initial load: `index` 254.9 kB (81.3 kB gzip) plus 12.7 kB CSS and fonts. Lazy chunks: Scenes 1,229 kB (327 kB gzip; three.js and deck.gl), map style 1,058 kB (289 kB gzip; MapLibre, loaded with Area or the flyover), Evidence 30 kB, This month 11 kB. `web/public/data` is 69 MB for 10 regions; hotspot CSVs are kept for Córdoba, California, Portugal and Punjab and left out for the other six to stay under 80 MB (the download button says so).
 
 `git log -p` checked for the FIRMS key and any LLM key: none found. No `.env`, `pipeline/data/` or `node_modules` file is tracked.
 

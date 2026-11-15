@@ -153,5 +153,42 @@
    10
   ],
   "hotspots": false
+ },
+ {
+  "id": "alberta",
+  "name": "Alberta, Canada",
+  "bbox": [
+   -120.0,
+   49.0,
+   -110.0,
+   60.0
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 3,
+  "criticalMonths": [
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "hotspots": false
+ },
+ {
+  "id": "sakha",
+  "name": "Central Sakha, Russia",
+  "bbox": [
+   120.0,
+   60.0,
+   135.0,
+   66.0
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 4,
+  "criticalMonths": [
+   7,
+   8
+  ],
+  "hotspots": false
  }
 ]
