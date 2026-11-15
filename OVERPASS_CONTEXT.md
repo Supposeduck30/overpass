@@ -264,7 +264,10 @@ backoff; a hard failure names the URL and status. `--region` and `--only-missing
    held type 1/2/3 detections in archive years.
 5. Confidence: MODIS ≥ 30; VIIRS in {n, h}.
 6. Map `satellite` → `aqua | terra | snpp | noaa20 | noaa21`.
-7. Clip to bbox. Write `clean/{region}/{sat}.parquet`:
+7. Clip to bbox and to the region's country (Natural Earth 1:50m outline, rasterised at 0.02°).
+   The yearly archives are per country and the Area API is per box; without the country clip a
+   box that crosses a border mixes one country's fires for MODIS and S-NPP history with two
+   countries' fires for NOAA-20. Write `clean/{region}/{sat}.parquet`:
    `ts_utc, date_local, lst_hour, lat, lon, frp, daynight, confidence, sat, type_known, proc`.
 
 ### 7.3 `grid.py`

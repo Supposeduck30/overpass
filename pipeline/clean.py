@@ -10,6 +10,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from lib.country import CountryMask
 from lib.io import DATA, get_region, load_config, region_ids, write_json
 from lib.solar import local_solar
 
@@ -132,6 +133,11 @@ def clean_region(cfg: dict, region_id: str) -> None:
     region = get_region(cfg, region_id)
     print(f"[clean] {region_id}", flush=True)
     raw = load_region_raw(region_id)
+    # Archives are per country and the Area API is per box, so every source is cut to the country.
+    mask = CountryMask(DATA / "geo_raw", region.get("outline", region["country"].replace("_", " ")), region["bbox"])
+    in_country = mask(raw["lat"].to_numpy(), raw["lon"].to_numpy())
+    print(f"  {mask.share:.0%} of the box is inside the country; {int((~in_country).sum())} rows fall outside", flush=True)
+    raw = raw[in_country]
     df, counts = clean_frame(raw, cfg, region["bbox"])
     print(f"  {counts}", flush=True)
     out = DATA / "clean" / region_id

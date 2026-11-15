@@ -197,3 +197,14 @@ def test_fire_days_counts_each_cell_date_once():
     assert len(fd) == 3
     first = fd.iloc[0]
     assert (first["n_pixels"], first["n_day"], first["n_night"], first["frp_sum"]) == (2, 1, 1, 3.0)
+
+
+def test_country_clip_handles_holes_and_islands():
+    import numpy as np
+    from lib.country import inside_rings
+    square = np.array([[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]], dtype=float)
+    hole = np.array([[1, 1], [1, 2], [2, 2], [2, 1], [1, 1]], dtype=float)
+    island = np.array([[6, 0], [7, 0], [7, 1], [6, 1], [6, 0]], dtype=float)
+    lon = np.array([3.0, 1.5, 6.5, 5.0, -1.0])
+    lat = np.array([3.0, 1.5, 0.5, 0.5, 2.0])
+    assert inside_rings([square, hole, island], lon, lat).tolist() == [True, False, True, False, False]
