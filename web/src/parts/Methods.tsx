@@ -51,6 +51,8 @@ export function Methods() {
 
       <h3>Definitions</h3>
       <dl>
+        <dt>Region</dt>
+        <dd>The part of the region's box that lies inside its country, so every satellite's record covers the same ground.</dd>
         <dt>Qualifying detection</dt>
         <dd>A vegetation-fire detection (type 0, or an untyped near-real-time detection away from known static heat sources) with MODIS confidence of 30 or more, or VIIRS confidence nominal or high.</dd>
         <dt>Fire-day</dt>
