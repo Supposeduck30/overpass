@@ -1,0 +1,36 @@
+:root {
+  --overcast: #e8ecef;
+  --chalk: #f6f8f9;
+  --night: #0b2343;
+  --slate: #566575;
+  --signal: #1f5fd1;
+  --sodium: #ffd84a;
+
+  /* Tints of the tokens above, for marks on plates. */
+  --plate-ink: rgba(246, 248, 249, 0.92);
+  --plate-ink-soft: rgba(246, 248, 249, 0.62);
+  --plate-rule: rgba(246, 248, 249, 0.5);
+  --plate-lift: #16325a;
+  --light-blue: #8fb8ff;
+
+  --u: 8px;
+  --radius: 3px;
+  --outline: 1.5px solid var(--night);
+
+  --t13: 13px;
+  --t15: 15px;
+  --t17: 17px;
+  --t22: 22px;
+  --t30: 30px;
+  --t44: 44px;
+
+  --font: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --frame-max: 1344px;
+  --gutter: 48px;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --gutter: 16px;
+  }
+}

@@ -1,0 +1,43 @@
+.methods {
+  font-size: var(--t15);
+  line-height: 22px;
+}
+
+.methods h3 {
+  margin: 32px 0 8px;
+  font-size: var(--t17);
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.methods p + p,
+.methods li + li {
+  margin-top: 8px;
+}
+
+.methods ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.methods dt {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.methods table {
+  margin: 12px 0;
+}
+
+.methods-link {
+  all: unset;
+  color: var(--signal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.methods-link:focus-visible {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+}

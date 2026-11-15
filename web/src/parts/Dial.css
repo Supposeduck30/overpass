@@ -1,0 +1,24 @@
+.dial {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.dial-hour {
+  font-size: 13px;
+  fill: var(--plate-ink-soft);
+}
+
+.dial-label {
+  font-size: 13px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--night);
+  stroke-width: 4px;
+}
+
+.dial-year {
+  font-size: 30px;
+  font-weight: 800;
+  fill: var(--chalk);
+}

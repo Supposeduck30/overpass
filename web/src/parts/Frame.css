@@ -1,0 +1,154 @@
+.frame {
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.frame-head {
+  display: grid;
+  grid-template-columns: auto minmax(200px, 280px) minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0 12px;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--t22);
+  line-height: 28px;
+  font-weight: 800;
+  color: var(--night);
+  text-decoration: none;
+}
+
+.wordmark-glyph {
+  display: inline-flex;
+}
+
+.frame-region select {
+  width: 100%;
+  font-weight: 600;
+}
+
+.frame-range {
+  max-width: 420px;
+}
+
+.frame-actions,
+.frame-side,
+.frame-views {
+  display: flex;
+  gap: 8px;
+}
+
+.frame-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.frame-hint {
+  min-height: 40px;
+  margin: 8px 0 16px;
+  font-size: var(--t15);
+  line-height: 40px;
+}
+
+.frame-hint .btn {
+  min-height: 32px;
+  padding: 2px 10px;
+  text-decoration: underline;
+}
+
+.frame-main {
+  min-height: 70vh;
+  outline: none;
+}
+
+.frame-foot {
+  margin: 72px 0 32px;
+  max-width: 72ch;
+}
+
+.frame-bottom {
+  display: none;
+}
+
+.frame-keys div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.frame-keys dt {
+  font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+  .frame-head {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .frame-range {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .frame {
+    padding-bottom: 72px;
+  }
+
+  .frame-head {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 12px 0 8px;
+  }
+
+  .frame-actions {
+    grid-column: 1 / -1;
+  }
+
+  .frame-views {
+    display: none;
+  }
+
+  .frame-hint {
+    line-height: 22px;
+    min-height: 0;
+    margin: 8px 0 12px;
+  }
+
+  .frame-bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: var(--chalk);
+    border-top: var(--outline);
+  }
+
+  .frame-bottom button {
+    min-height: 56px;
+    padding: 4px 2px;
+    border: 0;
+    background: none;
+    font-size: var(--t13);
+    font-weight: 600;
+    line-height: 16px;
+  }
+
+  .frame-bottom button[aria-current="true"] {
+    background: var(--night);
+    color: var(--chalk);
+  }
+}

@@ -1,0 +1,14 @@
+.table-twin {
+  margin-top: 16px;
+}
+
+.table-twin-scroll {
+  overflow: auto;
+  margin-top: 12px;
+  max-width: 100%;
+}
+
+.table-twin-dir {
+  font-weight: 400;
+  color: var(--slate);
+}

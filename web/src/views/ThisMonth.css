@@ -1,0 +1,14 @@
+.month-status {
+  max-width: 72ch;
+  margin-bottom: 16px;
+  font-size: var(--t15);
+  line-height: 22px;
+}
+
+.month-plate {
+  min-height: 288px;
+}
+
+.month-season {
+  margin-top: 64px;
+}

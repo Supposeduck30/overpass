@@ -1,0 +1,215 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--overcast);
+  color: var(--night);
+  font-family: var(--font);
+  font-size: var(--t17);
+  line-height: 26px;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+figure,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: var(--signal);
+  text-underline-offset: 3px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.plate :focus-visible,
+.on-plate:focus-visible {
+  outline-color: var(--sodium);
+}
+
+/* Controls: 3 px radius, 1.5 px Night outline; pressed fills Night with Chalk text. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 14px;
+  background: var(--chalk);
+  border: var(--outline);
+  border-radius: var(--radius);
+  font-size: var(--t15);
+  font-weight: 600;
+  line-height: 24px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--night);
+}
+
+.btn:hover {
+  background: #fff;
+}
+
+.btn[aria-pressed="true"],
+.btn[aria-current="true"],
+.btn:active {
+  background: var(--night);
+  color: var(--chalk);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  color: var(--slate);
+  border-color: var(--slate);
+  background: transparent;
+}
+
+.btn-quiet {
+  border-color: transparent;
+  background: transparent;
+}
+
+.btn-quiet:hover {
+  background: var(--chalk);
+}
+
+.seg {
+  display: inline-flex;
+}
+
+.seg .btn {
+  border-radius: 0;
+  margin-left: -1.5px;
+}
+
+.seg .btn:first-child {
+  margin-left: 0;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.seg .btn:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.field {
+  min-height: 40px;
+  padding: 6px 10px;
+  background: var(--chalk);
+  border: var(--outline);
+  border-radius: var(--radius);
+  font-size: var(--t15);
+}
+
+.label {
+  display: block;
+  font-size: var(--t13);
+  line-height: 18px;
+  color: var(--slate);
+}
+
+.plate {
+  background: var(--night);
+  color: var(--plate-ink);
+}
+
+.small {
+  font-size: var(--t15);
+  line-height: 22px;
+}
+
+.fine {
+  font-size: var(--t13);
+  line-height: 18px;
+  color: var(--slate);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+table.data {
+  border-collapse: collapse;
+  font-size: var(--t15);
+  line-height: 22px;
+  width: 100%;
+}
+
+table.data th,
+table.data td {
+  text-align: right;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
+table.data th:first-child,
+table.data td:first-child {
+  text-align: left;
+  padding-left: 8px;
+}
+
+table.data thead th {
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--overcast);
+}
+
+table.data tbody tr:nth-child(odd) {
+  background: var(--chalk);
+}
+
+table.data th button {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+table.data th button:focus-visible {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

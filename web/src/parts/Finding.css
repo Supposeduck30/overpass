@@ -1,0 +1,58 @@
+.finding {
+  margin-bottom: 24px;
+}
+
+.finding-sentence {
+  font-size: var(--t30);
+  line-height: 36px;
+  font-weight: 600;
+  max-width: 60ch;
+  text-wrap: balance;
+}
+
+h2.finding-sentence {
+  font-size: var(--t22);
+  line-height: 28px;
+  max-width: 64ch;
+}
+
+.finding-how {
+  margin-top: 8px;
+  font-size: var(--t15);
+  line-height: 22px;
+  color: var(--slate);
+  max-width: 72ch;
+}
+
+.finding-how summary {
+  cursor: pointer;
+  width: fit-content;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.finding-how p {
+  margin-top: 4px;
+  color: var(--night);
+}
+
+.waiting {
+  min-height: 60vh;
+}
+
+.waiting p + p {
+  margin-top: 12px;
+  max-width: 72ch;
+}
+
+@media (max-width: 720px) {
+  .finding-sentence {
+    font-size: var(--t22);
+    line-height: 28px;
+  }
+
+  h2.finding-sentence {
+    font-size: var(--t17);
+    line-height: 24px;
+  }
+}

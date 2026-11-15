@@ -1,0 +1,103 @@
+.area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  height: 100%;
+}
+
+.area-map {
+  position: relative;
+  min-height: 420px;
+}
+
+.area-canvas,
+.area-draw {
+  position: absolute;
+  inset: 0;
+}
+
+.area-draw {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.area-rubber {
+  position: absolute;
+  border: 2px solid var(--sodium);
+}
+
+.area-credit {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  font-size: var(--t13);
+  color: var(--plate-ink-soft);
+  pointer-events: none;
+}
+
+.area-side {
+  font-size: var(--t15);
+  line-height: 22px;
+  overflow: auto;
+}
+
+.area-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.area-typed {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.area-typed input {
+  width: 100%;
+}
+
+.area-typed .btn {
+  width: fit-content;
+}
+
+.area-typed p {
+  min-height: 18px;
+}
+
+.area-result {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  min-height: 96px;
+}
+
+.area-heading {
+  margin: 24px 0 8px;
+  font-size: var(--t15);
+  font-weight: 600;
+}
+
+.area-presets {
+  display: grid;
+  gap: 8px;
+}
+
+.area-presets .btn {
+  width: 100%;
+  justify-content: flex-start;
+  white-space: normal;
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .area {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .area-map {
+    min-height: 0;
+    height: 44vh;
+  }
+}

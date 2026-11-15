@@ -1,0 +1,72 @@
+.calendar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+}
+
+.calendar-why {
+  min-height: 18px;
+  margin: 8px 0 12px;
+  max-width: 96ch;
+}
+
+.calendar-plate {
+  min-height: 640px;
+}
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.calendar-legend ol {
+  display: flex;
+  gap: 12px;
+}
+
+.calendar-legend li,
+.calendar-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calendar-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: var(--night);
+}
+
+.calendar-swatch-hatch {
+  background: repeating-linear-gradient(45deg, var(--night) 0 3px, rgba(246, 248, 249, 0.45) 3px 4px);
+}
+
+.calendar-swatch-now {
+  border: 2px solid var(--sodium);
+}
+
+.calendar-swatch-bar {
+  height: 8px;
+  background: var(--chalk);
+  border: 1px solid var(--night);
+}
+
+@media (max-width: 720px) {
+  .calendar-plate {
+    min-height: 560px;
+  }
+
+  .calendar-controls .seg {
+    width: 100%;
+  }
+
+  .calendar-controls .seg .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

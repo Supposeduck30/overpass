@@ -1,0 +1,89 @@
+.range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t15);
+  font-weight: 600;
+  min-width: 0;
+}
+
+.range-end {
+  width: 4ch;
+}
+
+.range-track {
+  position: relative;
+  flex: 1;
+  min-width: 120px;
+  height: 40px;
+}
+
+.range-track::before,
+.range-fill {
+  content: "";
+  position: absolute;
+  top: 19px;
+  height: 2px;
+  background: var(--slate);
+}
+
+.range-track::before {
+  left: 0;
+  right: 0;
+}
+
+.range-fill {
+  top: 18px;
+  height: 4px;
+  background: var(--night);
+}
+
+.range-track input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.range-track input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--chalk);
+  border: 1.5px solid var(--night);
+  cursor: ew-resize;
+}
+
+.range-track input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--chalk);
+  border: 1.5px solid var(--night);
+  cursor: ew-resize;
+}
+
+.range-track input::-moz-range-track {
+  background: none;
+}
+
+.range-track input:focus-visible {
+  outline: none;
+}
+
+.range-track input:focus-visible::-webkit-slider-thumb {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.range-track input:focus-visible::-moz-range-thumb {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+}

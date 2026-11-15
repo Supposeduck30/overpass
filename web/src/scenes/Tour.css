@@ -1,0 +1,47 @@
+.tour {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 72px;
+  padding: 12px var(--gutter);
+  background: var(--chalk);
+  border-top: var(--outline);
+}
+
+.tour-caption {
+  max-width: 80ch;
+  font-size: var(--t17);
+  line-height: 24px;
+}
+
+.tour-count {
+  margin-right: 8px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-controls {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+@media (max-width: 720px) {
+  .tour {
+    bottom: 56px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .tour-caption {
+    font-size: var(--t15);
+    line-height: 20px;
+  }
+}

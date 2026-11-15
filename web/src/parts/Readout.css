@@ -1,0 +1,19 @@
+.readout {
+  min-height: 52px;
+  padding: 12px 0 0;
+  font-size: var(--t17);
+  line-height: 26px;
+  max-width: 96ch;
+}
+
+.readout-hint {
+  color: var(--slate);
+}
+
+@media (max-width: 720px) {
+  .readout {
+    min-height: 96px;
+    font-size: var(--t15);
+    line-height: 22px;
+  }
+}
