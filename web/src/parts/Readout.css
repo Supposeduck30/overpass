@@ -7,7 +7,7 @@
 }
 
 .readout-hint {
-  color: var(--slate);
+  color: var(--text-muted);
 }
 
 @media (max-width: 720px) {

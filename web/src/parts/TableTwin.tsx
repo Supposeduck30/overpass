@@ -59,7 +59,7 @@ export function TableTwin<T>({ caption, columns, rows, collapsible = false, maxH
             <tr key={i}>
               {columns.map((c) => {
                 const v = c.value(row);
-                return <td key={c.key}>{c.format ? c.format(row) : v == null ? "" : String(v)}</td>;
+                return <td key={c.key} className={typeof v === "number" ? "telemetry" : undefined}>{c.format ? c.format(row) : v == null ? "" : String(v)}</td>;
               })}
             </tr>
           ))}

@@ -1,9 +1,9 @@
 {
- "asOf": "2026-11-15T04:20:33Z",
+ "asOf": "2026-11-15T09:00:52Z",
  "ym": "2026-11",
  "day": 14,
  "fireDaysToDate": 384,
- "harmonizedToDate": 366.78,
+ "harmonizedToDate": 363.28,
  "source": "VIIRS_NOAA20_NRT",
  "cached": true
 }

@@ -60,23 +60,3 @@ export function useWidth<T extends HTMLElement>(fallback: number): [(el: T | nul
   }, [el]);
   return [setEl, width];
 }
-
-/** A remembered flag that survives reloads when storage is available and works without it. */
-export function useStoredFlag(key: string): [boolean, () => void] {
-  const [set, setSet] = useState(() => {
-    try {
-      return window.localStorage.getItem(key) === "1";
-    } catch {
-      return false;
-    }
-  });
-  const mark = () => {
-    setSet(true);
-    try {
-      window.localStorage.setItem(key, "1");
-    } catch {
-      // storage is blocked; the flag lasts for this visit only
-    }
-  };
-  return [set, mark];
-}

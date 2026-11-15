@@ -31,13 +31,13 @@
 
 .methods-link {
   all: unset;
-  color: var(--signal);
+  color: var(--sodium);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
 }
 
 .methods-link:focus-visible {
-  outline: 2.5px solid var(--signal);
+  outline: 2.5px solid var(--sodium);
   outline-offset: 2px;
 }

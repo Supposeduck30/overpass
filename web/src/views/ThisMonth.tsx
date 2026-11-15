@@ -73,19 +73,28 @@ function MonthBody({ current, mtd, season, forecast, boxed }: { current: Current
 
   return (
     <section className="month">
-      <Finding how={<>Each thin mark is one past {monthName}. The top row stops every year at day {current.day}, so it is a fair comparison with this year, in yellow. The lower row shows where those months ended up. The thick bar spans the middle half of years and the tall mark is the median.</>}>
+      <Finding title={`${monthName} in focus`} how={<>Each thin mark is one past {monthName}. The top row stops every year at day {current.day}, so it is a fair comparison with this year, in amber. The lower row shows where those months ended up. The thick bar spans the middle half of years and the tall mark is the median.</>}>
         {sentence}
       </Finding>
 
-      <p className="month-status">
-        Days 1–{current.day}, as of {utcStamp(current.asOf)}, from {NRT_NAMES[current.source] ?? current.source} (near-real-time):{" "}
-        {count(current.fireDaysToDate)} fire-days counted, {count(now)} after translation.
-        {current.cached && " The live request did not answer, so this is the figure stored when the site was last built."}
-        {boxed && " This view covers the whole region; a drawn box has no daily record."}
-      </p>
+      <dl className="month-metrics">
+        <div><dt>Observed fire-days</dt><dd>{count(current.fireDaysToDate)}</dd></div>
+        <div><dt>Harmonized fire-days</dt><dd>{count(now)}</dd></div>
+        <div>
+          <dt>{current.cached ? "Stored observation" : "Latest observation"}</dt>
+          <dd>
+            <time dateTime={current.asOf}>{utcStamp(current.asOf)}</time>
+            <span>Days 1–{current.day} · {NRT_NAMES[current.source] ?? current.source}</span>
+          </dd>
+        </div>
+      </dl>
+      {boxed && <p className="month-status">This view covers the whole region. A drawn box has no daily record.</p>}
 
-      <div ref={wrap} className="month-plate">
-        <Strips past={past} now={now} year={year} day={current.day} monthName={monthName} width={width} compact={compact} active={active} onActive={setActive} />
+      <div className="plot-surface">
+        <h2 className="plot-label">Compare with past {monthName}s</h2>
+        <div ref={wrap} className="month-plate">
+          <Strips past={past} now={now} year={year} day={current.day} monthName={monthName} width={width} compact={compact} active={active} onActive={setActive} />
+        </div>
       </div>
       <Readout hint={compact ? "Tap a mark to read that year." : "Point at a mark to read that year."}>
         {hovered ? `${monthName} ${hovered.year}: ${count(hovered.toDate)} fire-days by day ${current.day}, ${count(hovered.full)} by the end of the month.` : null}

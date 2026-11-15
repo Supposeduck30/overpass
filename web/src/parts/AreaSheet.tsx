@@ -1,10 +1,10 @@
-import type { Feature, Point } from "geojson";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useData } from "../data/context";
 import { useSelection } from "../data/selection";
 import { TOKENS } from "../lib/color";
+import { addHotspotLayers, animateHotspots, pointsFromCsv } from "../lib/hotspotMarkers";
 import { count, saveFile } from "../lib/format";
 import { boxInside } from "../lib/grid";
 import { boxPolygon, collection, PLATE_STYLE } from "../lib/mapStyle";
@@ -22,14 +22,6 @@ function roundBox(b: Box): Box {
   return b.map((v) => Math.round(v * 100) / 100) as Box;
 }
 
-function pointsFromCsv(csv: string): Feature<Point>[] {
-  const [head, ...lines] = csv.trim().split("\n");
-  const cols = head.split(",");
-  const lat = cols.indexOf("latitude");
-  const lon = cols.indexOf("longitude");
-  return lines.map((l) => l.split(",")).filter((c) => c.length === cols.length)
-    .map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [Number(c[lon]), Number(c[lat])] } }));
-}
 
 export default function AreaSheet() {
   const [url, setUrl] = useUrl();
@@ -56,12 +48,14 @@ export default function AreaSheet() {
       m.addSource("box", { type: "geojson", data: collection([]) });
       m.addSource("hotspots", { type: "geojson", data: collection([]) });
       m.addLayer({ id: "regions", type: "line", source: "regions", paint: { "line-color": TOKENS.chalk, "line-width": 1.5 } });
-      m.addLayer({ id: "hotspots", type: "circle", source: "hotspots", paint: { "circle-radius": 2.5, "circle-color": TOKENS.chalk, "circle-opacity": 0.85 } });
+      addHotspotLayers(m);
       m.addLayer({ id: "box", type: "line", source: "box", paint: { "line-color": TOKENS.sodium, "line-width": 2 } });
       setReady(true);
     });
     map.current = m;
-    return () => m.remove();
+    const resize = new ResizeObserver(() => m.resize());
+    resize.observe(holder.current!);
+    return () => { resize.disconnect(); m.remove(); };
     // The map is built once; later region changes are handled by the effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -73,7 +67,13 @@ export default function AreaSheet() {
 
   useEffect(() => {
     if (!ready) return;
+    map.current!.removeFeatureState({ source: "hotspots" });
     (map.current!.getSource("hotspots") as maplibregl.GeoJSONSource).setData(collection(live.state === "ready" ? pointsFromCsv(live.csv) : []));
+  }, [ready, live]);
+
+  useEffect(() => {
+    if (!ready || live.state !== "ready" || !live.rows) return;
+    return animateHotspots(map.current!);
   }, [ready, live]);
 
   const choose = (box: Box) => {
@@ -128,7 +128,8 @@ export default function AreaSheet() {
   return (
     <div className="area">
       <div className="area-map plate">
-        <div ref={holder} className="area-canvas" role="img" aria-label="Map of prepared regions and your box. Use the fields beside it to set a box without a pointer." />
+        <div ref={holder} className="area-canvas" aria-busy={!ready} role="img" aria-label="Map of prepared regions and your box. Use the fields beside it to set a box without a pointer." />
+        {!ready && <p className="area-loading" role="status">Loading region outlines…</p>}
         {drawing && (
           <div className="area-draw"
             onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); const p = at(e); setDrag({ x0: p.x, y0: p.y, x1: p.x, y1: p.y }); }}

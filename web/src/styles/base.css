@@ -6,12 +6,13 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
-  background: var(--overcast);
-  color: var(--night);
+  background: var(--workspace);
+  color: var(--chalk);
   font-family: var(--font);
   font-size: var(--t17);
   line-height: 26px;
@@ -38,7 +39,7 @@ ol {
 }
 
 a {
-  color: var(--signal);
+  color: var(--sodium);
   text-underline-offset: 3px;
 }
 
@@ -50,7 +51,7 @@ select {
 }
 
 :focus-visible {
-  outline: 2.5px solid var(--signal);
+  outline: 2.5px solid var(--sodium);
   outline-offset: 2px;
 }
 
@@ -59,14 +60,14 @@ select {
   outline-color: var(--sodium);
 }
 
-/* Controls: 3 px radius, 1.5 px Night outline; pressed fills Night with Chalk text. */
+/* Selected controls share the amber accent with keyboard focus. */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
   padding: 6px 14px;
-  background: var(--chalk);
+  background: var(--control);
   border: var(--outline);
   border-radius: var(--radius);
   font-size: var(--t15);
@@ -75,25 +76,26 @@ select {
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
-  color: var(--night);
+  color: var(--chalk);
 }
 
 .btn:hover {
-  background: #fff;
+  background: var(--control-hover);
 }
 
 .btn[aria-pressed="true"],
 .btn[aria-current="true"],
 .btn:active {
-  background: var(--night);
-  color: var(--chalk);
+  background: var(--sodium);
+  border-color: var(--sodium);
+  color: var(--night);
 }
 
 .btn:disabled,
 .btn[aria-disabled="true"] {
   cursor: not-allowed;
-  color: var(--slate);
-  border-color: var(--slate);
+  color: var(--text-muted);
+  border-color: var(--text-muted);
   background: transparent;
 }
 
@@ -103,7 +105,7 @@ select {
 }
 
 .btn-quiet:hover {
-  background: var(--chalk);
+  background: var(--control);
 }
 
 .seg {
@@ -127,7 +129,7 @@ select {
 .field {
   min-height: 40px;
   padding: 6px 10px;
-  background: var(--chalk);
+  background: var(--control);
   border: var(--outline);
   border-radius: var(--radius);
   font-size: var(--t15);
@@ -137,7 +139,7 @@ select {
   display: block;
   font-size: var(--t13);
   line-height: 18px;
-  color: var(--slate);
+  color: var(--text-muted);
 }
 
 .plate {
@@ -153,7 +155,7 @@ select {
 .fine {
   font-size: var(--t13);
   line-height: 18px;
-  color: var(--slate);
+  color: var(--text-muted);
 }
 
 .sr-only {
@@ -189,11 +191,11 @@ table.data thead th {
   font-weight: 600;
   position: sticky;
   top: 0;
-  background: var(--overcast);
+  background: var(--workspace);
 }
 
 table.data tbody tr:nth-child(odd) {
-  background: var(--chalk);
+  background: var(--surface);
 }
 
 table.data th button {
@@ -203,7 +205,7 @@ table.data th button {
 }
 
 table.data th button:focus-visible {
-  outline: 2.5px solid var(--signal);
+  outline: 2.5px solid var(--sodium);
   outline-offset: 2px;
 }
 
@@ -212,4 +214,8 @@ table.data th button:focus-visible {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+::selection {
+  color: var(--night);
+  background: var(--sodium);
 }

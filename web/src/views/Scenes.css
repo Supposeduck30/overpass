@@ -32,7 +32,7 @@
 .scenes-scrub input {
   flex: 1;
   min-width: 120px;
-  accent-color: var(--night);
+  accent-color: var(--sodium);
 }
 
 .scenes-scrub output {
@@ -121,3 +121,4 @@
     flex-direction: column;
   }
 }
+.scenes-loading { padding: 24px; }

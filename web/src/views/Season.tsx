@@ -167,12 +167,15 @@ function SeasonBody({ clock }: { clock: Clock }) {
   }
 
   return (
-    <section aria-label="Season timing">
-      <Finding how={`Each row is one fire year, starting in ${MONTHS[start - 1]}. The bar runs from the day 10% of that year's fire-days had been counted to the day 90% had; the ring marks the day half had. The light blue lines are the fitted trends in each date. A dashed rule marks where the dates start coming from a different satellite.`}>
+    <section className="season-view" aria-label="Season timing">
+      <Finding title="The fire season" how={`Each row is one fire year, starting in ${MONTHS[start - 1]}. The bar runs from the day 10% of that year's fire-days had been counted to the day 90% had; the ring marks the day half had. The mint lines are the fitted trends in each date. A dashed rule marks where the dates start coming from a different satellite.`}>
         {headline(clock, region.name)}
       </Finding>
-      <div ref={wrap} className="plate season-plate">
-        <Plate clock={clock} width={width} active={active} onActive={setActive} />
+      <div className="plot-surface">
+        <div className="plot-label">Timing by fire year <span>Fire year starts in {MONTHS[start - 1]}</span></div>
+        <div ref={wrap} className="plate season-plate">
+          <Plate clock={clock} width={width} active={active} onActive={setActive} />
+        </div>
       </div>
       <Readout hint={width < 600 ? "Tap a row to read that fire year." : "Point at a row to read that fire year."}>
         {hovered
@@ -180,15 +183,17 @@ function SeasonBody({ clock }: { clock: Clock }) {
           : null}
       </Readout>
 
-      <h2 className="season-sub">Trends in each date, on the stitched record and on Aqua alone</h2>
-      <Trends rows={trends} />
-      <p className="season-note">
-        {o.meanAbsDiffDays == null
-          ? "Aqua and S-NPP share no complete fire years here, so there is no check on whether their season dates agree."
-          : `Overlap check: in the ${o.years.length} fire years both Aqua and S-NPP saw whole (${o.years[0]} to ${o.years[o.years.length - 1]}), their dates differed on average by ${o.onsetDays?.toFixed(0) ?? "no data"} days at onset, ${o.peakDays?.toFixed(0) ?? "no data"} at the midpoint and ${o.endDays?.toFixed(0) ?? "no data"} at the end. A date is treated as comparable across the handoff when that gap is ${COMPARABLE_DAYS} days or less.`}
-        {suspect.length > 0 && ` The stitched ${suspect.length === 1 ? "trend" : "trends"} in ${suspect.map((t) => NAMES[t.key].split(" (")[0].toLowerCase()).join(" and ")} ${suspect.length === 1 ? "fails" : "fail"} that check, so ${suspect.length === 1 ? "its" : "their"} size may come from the change of satellite in 2012 and not from the ground. Read the Aqua-alone column for ${suspect.length === 1 ? "that mark" : "those marks"}.`}
-      </p>
-      <TableTwin caption={`Season dates by fire year in ${region.name}`} columns={yearTable} rows={clock.years} collapsible />
+      <div className="season-summary">
+        <h2 className="season-sub">Trends in each date, on the stitched record and on Aqua alone</h2>
+        <Trends rows={trends} />
+        <p className="season-note">
+          {o.meanAbsDiffDays == null
+            ? "Aqua and S-NPP share no complete fire years here, so there is no check on whether their season dates agree."
+            : `Overlap check: in the ${o.years.length} fire years both Aqua and S-NPP saw whole (${o.years[0]} to ${o.years[o.years.length - 1]}), their dates differed on average by ${o.onsetDays?.toFixed(0) ?? "no data"} days at onset, ${o.peakDays?.toFixed(0) ?? "no data"} at the midpoint and ${o.endDays?.toFixed(0) ?? "no data"} at the end. A date is treated as comparable across the handoff when that gap is ${COMPARABLE_DAYS} days or less.`}
+          {suspect.length > 0 && ` The stitched ${suspect.length === 1 ? "trend" : "trends"} in ${suspect.map((t) => NAMES[t.key].split(" (")[0].toLowerCase()).join(" and ")} ${suspect.length === 1 ? "fails" : "fail"} that check, so ${suspect.length === 1 ? "its" : "their"} size may come from the change of satellite in 2012 and not from the ground. Read the Aqua-alone column for ${suspect.length === 1 ? "that mark" : "those marks"}.`}
+        </p>
+        <TableTwin caption={`Season dates by fire year in ${region.name}`} columns={yearTable} rows={clock.years} collapsible />
+      </div>
     </section>
   );
 }

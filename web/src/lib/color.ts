@@ -1,21 +1,19 @@
 import { interpolateCividis } from "d3-scale-chromatic";
 
 export const TOKENS = {
-  overcast: "#E8ECEF",
-  chalk: "#F6F8F9",
-  night: "#0B2343",
-  slate: "#566575",
-  signal: "#1F5FD1",
-  sodium: "#FFD84A",
-  lightBlue: "#8FB8FF",
-  plateMid: "#1D3A66",
+  chalk: "#FAF5EB",
+  night: "#161722",
+  sodium: "#FFC164",
+  lightBlue: "#8BD5CD",
+  plateLift: "#252934",
+  plateMid: "#2E3847",
 } as const;
 
 /** Chalk tints for marks on plates, as literals so an exported SVG keeps them. Same values as tokens.css. */
 export const PLATE = {
-  ink: "rgba(246, 248, 249, 0.92)",
-  soft: "rgba(246, 248, 249, 0.62)",
-  rule: "rgba(246, 248, 249, 0.5)",
+  ink: "rgba(250, 245, 235, 0.92)",
+  soft: "rgba(250, 245, 235, 0.68)",
+  rule: "rgba(250, 245, 235, 0.5)",
   font: '"Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif',
 } as const;
 

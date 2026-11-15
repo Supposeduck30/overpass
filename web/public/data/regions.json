@@ -81,6 +81,24 @@
   "hotspots": true
  },
  {
+  "id": "zambia",
+  "name": "Zambia",
+  "bbox": [
+   21.9,
+   -18.1,
+   33.8,
+   -8.2
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 2,
+  "criticalMonths": [
+   7,
+   8,
+   9
+  ],
+  "hotspots": false
+ },
+ {
   "id": "kalimantan",
   "name": "Central Kalimantan, Indonesia",
   "bbox": [
@@ -96,6 +114,81 @@
    9,
    10
   ],
-  "hotspots": true
+  "hotspots": false
+ },
+ {
+  "id": "se_australia",
+  "name": "Southeast Australia",
+  "bbox": [
+   140.9,
+   -39.2,
+   153.7,
+   -28.1
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 2,
+  "criticalMonths": [
+   3,
+   4,
+   5,
+   8,
+   9
+  ],
+  "hotspots": false
+ },
+ {
+  "id": "mato_grosso",
+  "name": "Mato Grosso, Brazil",
+  "bbox": [
+   -61.7,
+   -18.1,
+   -50.2,
+   -7.3
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 4,
+  "criticalMonths": [
+   8,
+   9,
+   10
+  ],
+  "hotspots": false
+ },
+ {
+  "id": "alberta",
+  "name": "Alberta, Canada",
+  "bbox": [
+   -120.0,
+   49.0,
+   -110.0,
+   60.0
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 3,
+  "criticalMonths": [
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "hotspots": false
+ },
+ {
+  "id": "sakha",
+  "name": "Central Sakha, Russia",
+  "bbox": [
+   120.0,
+   60.0,
+   135.0,
+   66.0
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 4,
+  "criticalMonths": [
+   7,
+   8
+  ],
+  "hotspots": false
  }
 ]

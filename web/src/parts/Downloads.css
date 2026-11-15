@@ -9,7 +9,7 @@
   z-index: 20;
   width: 300px;
   padding: 12px;
-  background: var(--chalk);
+  background: var(--surface);
   border: var(--outline);
   border-radius: var(--radius);
 }

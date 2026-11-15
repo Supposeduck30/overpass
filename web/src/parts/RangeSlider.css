@@ -24,7 +24,7 @@
   position: absolute;
   top: 19px;
   height: 2px;
-  background: var(--slate);
+  background: var(--text-muted);
 }
 
 .range-track::before {
@@ -35,7 +35,7 @@
 .range-fill {
   top: 18px;
   height: 4px;
-  background: var(--night);
+  background: var(--sodium);
 }
 
 .range-track input {
@@ -79,11 +79,11 @@
 }
 
 .range-track input:focus-visible::-webkit-slider-thumb {
-  outline: 2.5px solid var(--signal);
+  outline: 2.5px solid var(--sodium);
   outline-offset: 2px;
 }
 
 .range-track input:focus-visible::-moz-range-thumb {
-  outline: 2.5px solid var(--signal);
+  outline: 2.5px solid var(--sodium);
   outline-offset: 2px;
 }
