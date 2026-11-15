@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from lib.io import DATA, get_region, load_config, region_ids
+from lib.io import DATA, get_region, load_config, region_ids, write_json
 from lib.solar import local_solar
 
 BASE_COLS = ["latitude", "longitude", "scan", "track", "acq_date", "acq_time", "satellite",
@@ -90,6 +90,12 @@ def mask_key(lat: pd.Series, lon: pd.Series) -> pd.Series:
     return iy * 100_000 + ix
 
 
+def static_keys(df: pd.DataFrame, cfg: dict) -> list[int]:
+    """0.01-degree cells where a typed archive row was not vegetation fire. The live function applies the same mask."""
+    static = df[df["type"].notna() & ~df["type"].isin(cfg["keep_types"])]
+    return sorted(int(k) for k in mask_key(static["lat"], static["lon"]).unique())
+
+
 def clean_frame(df: pd.DataFrame, cfg: dict, bbox: list[float]) -> tuple[pd.DataFrame, dict]:
     """Apply every qualifying-detection rule. Returns the clean rows and a count per step."""
     counts = {"raw": len(df)}
@@ -125,10 +131,14 @@ def clean_frame(df: pd.DataFrame, cfg: dict, bbox: list[float]) -> tuple[pd.Data
 def clean_region(cfg: dict, region_id: str) -> None:
     region = get_region(cfg, region_id)
     print(f"[clean] {region_id}", flush=True)
-    df, counts = clean_frame(load_region_raw(region_id), cfg, region["bbox"])
+    raw = load_region_raw(region_id)
+    df, counts = clean_frame(raw, cfg, region["bbox"])
     print(f"  {counts}", flush=True)
     out = DATA / "clean" / region_id
     out.mkdir(parents=True, exist_ok=True)
+    w, s, e, n = region["bbox"]
+    inside = raw[(raw["lat"] >= s) & (raw["lat"] < n) & (raw["lon"] >= w) & (raw["lon"] < e)]
+    write_json(out / "static.json", {"deg": MASK_DEG, "keys": static_keys(inside, cfg)}, compact=True)
     for sat, d in df.groupby("sat"):
         d.to_parquet(out / f"{sat}.parquet", index=False)
         print(f"  {sat}: {len(d)} rows, {d['date_local'].min().date()} .. {d['date_local'].max().date()}, "

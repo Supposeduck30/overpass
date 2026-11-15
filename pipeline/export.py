@@ -105,6 +105,7 @@ def export_region(cfg: dict, region_id: str) -> None:
     write_json(out / "cells.json", cells_json(cfg, region_id), compact=True)
     write_json(out / "validation.json", scrub(read_json(DATA / "validation" / f"{region_id}.json")), compact=True)
     write_json(out / "clock.json", scrub(read_json(DATA / "clock" / f"{region_id}.json")), compact=True)
+    shutil.copyfile(DATA / "clean" / region_id / "static.json", out / "static.json")
     for name in ("mtd.json", "season.json"):
         shutil.copyfile(DATA / "nowcast" / region_id / name, out / name)
     (WEB_DATA / "current").mkdir(parents=True, exist_ok=True)

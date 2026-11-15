@@ -11,6 +11,7 @@ from lib.season import day_of_fire_year, fire_year, season_marks
 from lib.stats import mann_kendall, theil_sen
 
 MARKS = ["onset", "peak", "end"]
+COMPARABLE_DAYS = 7
 
 
 def marks_by_year(daily: pd.DataFrame, sat: str, start_month: int, min_total: float) -> dict[int, dict]:
@@ -65,16 +66,28 @@ def clock_region(cfg: dict, region_id: str) -> None:
         diffs = {k: float(np.mean([abs(by_sat["aqua"][fy][k] - by_sat["snpp"][fy][k]) for fy in both])) for k in MARKS}
         overlap.update({"meanAbsDiffDays": float(np.mean(list(diffs.values()))), **{f"{k}Days": v for k, v in diffs.items()}})
 
-    trend = {}
-    x = np.array([y["fireYear"] for y in years], float)
-    for k in MARKS + ["length"]:
-        v = np.array([y["end"] - y["onset"] if k == "length" else y[k] for y in years], float)
-        if len(v) >= 8:
-            slope, lo, hi = theil_sen(x, v)
-            trend[k] = {"daysPerDecade": slope * 10, "lo": lo * 10, "hi": hi * 10, "p": mann_kendall(v)}
-        else:
-            trend[k] = None
-    out = {"fireYearStartMonth": start, "years": years, "trend": trend, "overlapCheck": overlap}
+    def trends(rows: list[dict]) -> dict:
+        x = np.array([y["fireYear"] for y in rows], float)
+        out = {}
+        for k in MARKS + ["length"]:
+            v = np.array([y["end"] - y["onset"] if k == "length" else y[k] for y in rows], float)
+            if len(v) >= 8:
+                slope, lo, hi = theil_sen(x, v)
+                out[k] = {"daysPerDecade": slope * 10, "lo": lo * 10, "hi": hi * 10, "p": mann_kendall(v)}
+            else:
+                out[k] = None
+        return out
+
+    trend = trends(years)
+    # A mark the two satellites place more than a week apart in the same years cannot carry a cross-satellite trend.
+    for k in MARKS:
+        if trend[k] and overlap["meanAbsDiffDays"] is not None:
+            trend[k]["comparable"] = bool(overlap[f"{k}Days"] <= COMPARABLE_DAYS)
+    if trend["length"] and trend["onset"] and trend["end"]:
+        trend["length"]["comparable"] = bool(trend["onset"].get("comparable", True) and trend["end"].get("comparable", True))
+    # Control: the same marks from Aqua alone, one instrument for every year.
+    aqua_only = trends([{"fireYear": fy, **m} for fy, m in sorted(by_sat["aqua"].items())])
+    out = {"fireYearStartMonth": start, "years": years, "trend": trend, "trendAquaOnly": aqua_only, "overlapCheck": overlap}
     write_json(DATA / "clock" / f"{region_id}.json", out)
     t = trend["peak"]
     print(f"[clock] {region_id}: {len(years)} fire years; overlap check {overlap['meanAbsDiffDays']} days; "
