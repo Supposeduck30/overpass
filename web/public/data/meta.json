@@ -1,6 +1,6 @@
 {
- "builtAt": "2026-11-15T04:23:07Z",
- "commit": "365f789",
+ "builtAt": "2026-11-15T08:05:23Z",
+ "commit": "678e029",
  "availability": [
   {
    "data_id": "MODIS_NRT",
@@ -92,6 +92,13 @@
    "snpp": "2026-11-02",
    "terra": "2026-11-10"
   },
+  "zambia": {
+   "aqua": "2026-11-14",
+   "noaa20": "2026-11-15",
+   "noaa21": "2026-11-15",
+   "snpp": "2026-11-02",
+   "terra": "2026-11-14"
+  },
   "kalimantan": {
    "aqua": "2026-11-14",
    "noaa20": "2026-11-15",
@@ -100,6 +107,9 @@
    "terra": "2026-11-14"
   }
  },
- "hotspotsDropped": [],
- "sizeMb": 74.1
+ "hotspotsDropped": [
+  "kalimantan",
+  "zambia"
+ ],
+ "sizeMb": 58.4
 }

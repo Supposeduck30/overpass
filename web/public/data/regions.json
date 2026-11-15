@@ -81,6 +81,24 @@
   "hotspots": true
  },
  {
+  "id": "zambia",
+  "name": "Zambia",
+  "bbox": [
+   21.9,
+   -18.1,
+   33.8,
+   -8.2
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 2,
+  "criticalMonths": [
+   7,
+   8,
+   9
+  ],
+  "hotspots": false
+ },
+ {
   "id": "kalimantan",
   "name": "Central Kalimantan, Indonesia",
   "bbox": [
@@ -96,6 +114,6 @@
    9,
    10
   ],
-  "hotspots": true
+  "hotspots": false
  }
 ]
