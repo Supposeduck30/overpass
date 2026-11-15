@@ -223,6 +223,22 @@ export interface Validation {
   notes: string[];
 }
 
+export interface Forecast {
+  shown: boolean;
+  horizonMonths: number;
+  skill: {
+    backtest: string;
+    months: number;
+    model: number;
+    climatology: number;
+    persistence: number;
+    coverage90Raw: number;
+    intervalScale: number;
+    coverage90: number;
+  };
+  next: { ym: string; from: string; value: number; lo: number; hi: number; normal: number } | null;
+}
+
 export interface Current {
   asOf: string;
   ym: string;

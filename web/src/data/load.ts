@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { AtlasEntry, Cells, Clock, Current, Hotspot, Meta, Monthly, Mtd, Region, Season, Validation } from "../types";
-import { asAtlas, asCells, asClock, asCurrent, asMeta, asMonthly, asMtd, asRegions, asSeason, asValidation } from "./guards";
+import type { AtlasEntry, Cells, Clock, Current, Forecast, Hotspot, Meta, Monthly, Mtd, Region, Season, Validation } from "../types";
+import { asAtlas, asCells, asClock, asCurrent, asForecast, asMeta, asMonthly, asMtd, asRegions, asSeason, asValidation } from "./guards";
 
 const cache = new Map<string, Promise<unknown>>();
 
@@ -37,6 +37,7 @@ export const loadCells = (r: string) => load<Cells>(`/data/${r}/cells.json`, asC
 export const loadMtd = (r: string) => load<Mtd>(`/data/${r}/mtd.json`, asMtd);
 export const loadSeason = (r: string) => load<Season>(`/data/${r}/season.json`, asSeason);
 export const loadClock = (r: string) => load<Clock>(`/data/${r}/clock.json`, asClock);
+export const loadForecast = (r: string) => load<Forecast>(`/data/${r}/forecast.json`, asForecast);
 export const loadValidation = (r: string) => load<Validation>(`/data/${r}/validation.json`, asValidation);
 
 /** Live month-to-date from the serverless function; falls back to the committed file, which says it is cached. */

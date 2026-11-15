@@ -1,16 +1,16 @@
 import { scaleLinear } from "d3-scale";
 import { useMemo, useState } from "react";
 import { useData } from "../data/context";
-import { loadCurrent, loadMtd, loadSeason, useLoad } from "../data/load";
+import { loadCurrent, loadForecast, loadMtd, loadSeason, useLoad } from "../data/load";
 import { PLATE, TOKENS } from "../lib/color";
-import { count, MONTHS, MONTHS_LONG, utcStamp, ymParts } from "../lib/format";
+import { count, monthLabel, MONTHS, MONTHS_LONG, percent, utcStamp, ymParts } from "../lib/format";
 import { useIsMobile, useWidth } from "../lib/hooks";
 import { median } from "../lib/series";
 import { Finding, Waiting } from "../parts/Finding";
 import { Readout } from "../parts/Readout";
 import { TableTwin, type Column } from "../parts/TableTwin";
 import { useUrl } from "../state/url";
-import type { Current, Mtd, Season } from "../types";
+import type { Current, Forecast, Mtd, Season } from "../types";
 import "./ThisMonth.css";
 
 interface PastYear {
@@ -37,15 +37,15 @@ export default function ThisMonth() {
   const [url] = useUrl();
   const { region } = useData();
   const files = useLoad(`month:${region.id}`, async () => {
-    const [current, mtd, season] = await Promise.all([loadCurrent(region.id), loadMtd(region.id), loadSeason(region.id)]);
-    return { current, mtd, season };
+    const [current, mtd, season, forecast] = await Promise.all([loadCurrent(region.id), loadMtd(region.id), loadSeason(region.id), loadForecast(region.id)]);
+    return { current, mtd, season, forecast };
   });
   if (files.state === "error") return <Waiting what="This month" error={files.message} />;
   if (files.state === "loading") return <Waiting what="This month" />;
   return <MonthBody {...files.data} boxed={url.box != null} />;
 }
 
-function MonthBody({ current, mtd, season, boxed }: { current: Current; mtd: Mtd; season: Season; boxed: boolean }) {
+function MonthBody({ current, mtd, season, forecast, boxed }: { current: Current; mtd: Mtd; season: Season; forecast: Forecast; boxed: boolean }) {
   const { region } = useData();
   const compact = useIsMobile();
   const [wrap, width] = useWidth<HTMLDivElement>(compact ? 343 : 1200);
@@ -93,6 +93,7 @@ function MonthBody({ current, mtd, season, boxed }: { current: Current; mtd: Mtd
       <TableTwin caption={`Past ${monthName}s in ${region.name}`} columns={TABLE} rows={past} collapsible />
 
       <SeasonCurve season={season} year={year} month={month} width={width} compact={compact} />
+      <NextMonth forecast={forecast} place={place} width={width} boxed={boxed} />
     </section>
   );
 }
@@ -170,12 +171,13 @@ function SeasonCurve({ season, year, month, width, compact }: { season: Season; 
   const curve = season.years[String(fireYear)] ?? [];
   if (!curve.length) return null;
 
-  const padL = compact ? 44 : 64;
+  const max = Math.max(curve[curve.length - 1], ...season.envelope.p90) * 1.05;
+  // Room for the longest axis label, at about 8 px per tabular digit.
+  const padL = Math.max(compact ? 44 : 64, 22 + 8 * count(Math.max(...scaleLinear().domain([0, max]).ticks(5))).length);
   const padR = compact ? 12 : 152;
   const height = compact ? 260 : 340;
   const top = 20;
   const bottom = height - 36;
-  const max = Math.max(curve[curve.length - 1], ...season.envelope.p90) * 1.05;
   const x = (d: number) => padL + (d / 364) * (width - padL - padR);
   const y = (v: number) => bottom - (v / max) * (bottom - top);
   const line = (v: number[]) => v.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p).toFixed(1)}`).join("");
@@ -227,6 +229,48 @@ function SeasonCurve({ season, year, month, width, compact }: { season: Season; 
           </g>
         ))}
       </svg>
+    </div>
+  );
+}
+
+/** The forecast for the month after this one, drawn only where it beat the seasonal normal in testing. */
+function NextMonth({ forecast, place, width, boxed }: { forecast: Forecast; place: string; width: number; boxed: boolean }) {
+  const { skill, next } = forecast;
+  if (!next) return null;
+  const name = MONTHS_LONG[ymParts(next.ym).month - 1];
+  const tested = `Tested on ${skill.backtest.replace("..", " to ")} by forecasting each month from what was known ${forecast.horizonMonths} months before`;
+  if (!forecast.shown) {
+    return (
+      <p className="month-forecast-none fine">
+        No forecast for {name} is shown for {place}. {tested}, it missed by {percent(skill.model)} in a typical month, and the
+        normal {name} alone missed by {percent(skill.climatology)}, so it adds nothing.
+      </p>
+    );
+  }
+
+  const height = 96;
+  const pad = 24;
+  const max = Math.max(next.hi, next.normal) * 1.1;
+  const x = scaleLinear().domain([0, max]).range([pad, width - pad]);
+  const ticks = x.ticks(width < 500 ? 4 : 8);
+  return (
+    <div className="month-forecast">
+      <Finding level="h2" how={<>{tested.replace("forecasting", "forecasting, with a quantile gradient-boosted model,")}: it missed by {percent(skill.model)} in a typical month, against {percent(skill.climatology)} for the normal {name} and {percent(skill.persistence)} for carrying the latest anomaly forward. {skill.intervalScale > 1 ? `Its 90% range held the true value in ${percent(skill.coverage90Raw)} of months, so ranges are widened ×${skill.intervalScale.toFixed(2)}.` : `Its 90% range held the true value in ${percent(skill.coverage90)} of months.`} Made from the record up to {monthLabel(next.from)}.</>}>
+        {`${name} forecast: ${count(Math.round(next.value))} fire-days (${count(Math.round(next.lo))} to ${count(Math.round(next.hi))}), against a normal ${name} of ${count(Math.round(next.normal))}.`}
+      </Finding>
+      <svg width={width} height={height} role="img" fontFamily={PLATE.font} style={{ display: "block", fontVariantNumeric: "tabular-nums" }}
+        aria-label={`Forecast for ${name}: ${count(Math.round(next.value))} fire-days, 90% range ${count(Math.round(next.lo))} to ${count(Math.round(next.hi))}. Normal ${name}: ${count(Math.round(next.normal))}.`}>
+        <rect width={width} height={height} fill={TOKENS.night} />
+        <rect x={x(next.lo)} y={30} width={x(next.hi) - x(next.lo)} height={12} fill={TOKENS.chalk} opacity={0.3} />
+        <circle cx={x(next.value)} cy={36} r={6} fill={TOKENS.chalk} />
+        <line x1={x(next.normal)} x2={x(next.normal)} y1={20} y2={52} stroke={TOKENS.chalk} strokeWidth={1} strokeDasharray="3 3" />
+        <text x={x(next.normal)} y={14} fontSize={13} textAnchor="middle" fill={PLATE.soft}>normal</text>
+        {ticks.map((t) => (
+          <text key={t} x={x(t)} y={78} fontSize={13} textAnchor="middle" fill={PLATE.soft}>{count(t)}</text>
+        ))}
+      </svg>
+      {boxed && <p className="fine">The forecast is for the whole region, not the drawn box.</p>}
+      <p className="fine">A statistical forecast from past months only. It knows nothing about weather or fires burning now; follow local fire authorities.</p>
     </div>
   );
 }

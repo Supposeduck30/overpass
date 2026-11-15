@@ -12,3 +12,17 @@
 .month-season {
   margin-top: 64px;
 }
+
+.month-forecast,
+.month-forecast-none {
+  margin-top: 64px;
+}
+
+.month-forecast .fine {
+  margin-top: 8px;
+  max-width: 72ch;
+}
+
+.month-forecast-none {
+  max-width: 72ch;
+}

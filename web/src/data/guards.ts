@@ -3,6 +3,7 @@ import type {
   Cells,
   Clock,
   Current,
+  Forecast,
   Meta,
   Monthly,
   Mtd,
@@ -101,6 +102,11 @@ export function asValidation(v: unknown): Validation {
   checkList(f, val.drift, { year: "number" }, "drift");
   check(f, val.handoff, { factor: "number", lo: "number", hi: "number", model: "string", points: "array" }, "handoff");
   return val;
+}
+
+export function asForecast(v: unknown): Forecast {
+  check("forecast.json", v, { shown: "boolean", horizonMonths: "number", skill: "object" });
+  return v as Forecast;
 }
 
 export function asCurrent(v: unknown): Current {
