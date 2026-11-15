@@ -16,52 +16,60 @@ The Vercel CLI is not installed on the build machine, so the site is not deploye
 
 ### Headline numbers
 
+The record runs from Nov 2000 (Terra) through Aqua (Aug 2002), S-NPP (Feb 2012) and NOAA-20 (Nov 2026).
+
 | | Córdoba, Argentina | California, USA |
 |---|---|---|
 | Aqua to S-NPP model (chosen by leave-one-year-out) | M3, median error 12.2% | M3, median error 13.4% |
-| One global factor, same test | 22.2% | 23.3% |
+| One global factor, same test | 22.1% | 23.4% |
 | Exchange rate at the median burning month | ×3.55 (3.37–3.75) | ×4.07 (3.86–4.27) |
-| Step at Feb 2012, raw | ×2.70 (1.99–3.65) | ×3.58 (2.60–4.93) |
-| Step at Feb 2012, harmonized | ×0.85 (0.66–1.11) | ×0.89 (0.70–1.12) |
+| Step at Feb 2012, as recorded | ×2.51 (1.87–3.37) | ×3.63 (2.61–5.05) |
+| Step at Feb 2012, harmonized | ×0.83 (0.64–1.07) | ×0.90 (0.71–1.14) |
 | Backward test (fit 2016–2020, predict 2012–2015) | 14.5% error, 85% inside the 90% interval | 15.2% error, 79% inside |
 | Forward test (fit 2012–2017, predict 2018–2020) | 10.9% error, 94% inside | 14.4% error, 69% inside |
 | NOAA-20 to S-NPP | factor 0.961 (0.950–0.972) | 0.946 (0.934–0.956) |
+| Terra and Aqua translated separately, Aug 2002 to Dec 2011 | Terra total 114% of Aqua's | 98% |
+| Next-month forecast against the normal month (2016–2025) | 25.8% vs 45.9%, shown | 22.2% vs 20.2%, not shown |
 | Top fire year | 2003, 4,915 fire-days | 2020, 7,948 fire-days |
 
-Atlas: Portugal is in (M4, 19.7% against 30.8% for one factor; ×4.27). Punjab was fetching when
-this was written; Kalimantan, Zambia, Mato Grosso, Southeast Australia, Alberta and Sakha were
-queued behind it. Each needs `run_all.py --region X --from-stage clean --to-stage aggregate`, then
-`run_all.py --all --from-stage calibrate`, then a data commit.
+Atlas regions in the data: Portugal (M4, 19.7% against 30.0% for one factor; ×4.27) and
+Punjab–Haryana (M4, 17.8% against 50.0%; ×6.92). Kalimantan, Zambia, Mato Grosso, Southeast
+Australia, Alberta and Sakha were still fetching when this was written. For each one that
+finishes: `run_all.py --region X --from-stage clean --to-stage aggregate` (the background loop
+does this), then `run_all.py --all --from-stage calibrate`, then commit `web/public/data`.
 
 ### Which claims held
 
-- Held: the raw record jumps at the 2012 satellite change in every region, and harmonized it does not (each harmonized step interval includes ×1).
-- Held: a regional model beats one global factor in 3 of 3 regions.
-- Held with the §15 fallback: 90% intervals. Held-out coverage was short in Córdoba (84%) and Portugal (82%) and was widened from held-out residuals. California's forward and backward tests still cover only 69% and 79%; the Evidence view says so.
-- Did not hold: "NOAA-20 is interchangeable with S-NPP". It reads 4 to 7% higher; link 2 uses a factor.
-- Did not hold: "fire-days 0.25° is the steadiest unit". It is within 0.03 of the steadiest in every region; the unit was kept and the Evidence view shows it.
-- Did not hold as a cause: Aqua's drift is measured (about +110 minutes by 2026), but the S-NPP to Aqua ratio mostly stays in its earlier range. Reported as "no clear effect detected".
+- Held: the raw record jumps at the 2012 satellite change in every region (×2.5 to ×4.7), and harmonized it does not (every harmonized step interval includes ×1).
+- Held: a regional model beats one global factor in 4 of 4 regions.
+- Held, as a new check: Terra and Aqua, translated separately, agree on 2002–2011 totals within 5% in California, Portugal and Punjab. In Córdoba the Terra link fell back to the pooled factor and reads 14% high; the Methods drawer shows the figure.
+- Held with the §15 fallback: 90% intervals. Held-out coverage was short in several links and was widened from held-out residuals; California's forward and backward tests still cover only 69% and 79%, and Punjab's forward test 69%. The Evidence view says so.
+- Did not hold: "NOAA-20 is interchangeable with S-NPP". It reads 4 to 7% higher in every region; link 2 uses a factor.
+- Did not hold: "fire-days 0.25° is the steadiest unit". It is close to the steadiest in every region; the unit was kept and the Evidence view shows it.
+- Mixed: Aqua's drift. Measured in every region (+100 to +130 minutes by 2026). No clear effect in Córdoba, California and Portugal; a clear one in Punjab, where the S-NPP to Aqua ratio left its range in 5 of 5 recent years. Calibration stays on 2012–2020 everywhere.
 - Not testable yet: a step at the Nov 2026 handoff (no NOAA-20-only month exists). The 2020–2026 overlap stands in.
 - Open: Pettitt still finds a change point in the harmonized series. In Córdoba and Portugal Aqua alone has the same date, which points to burning; in California it does not (2017-03 against 2009-05), so a leftover seam there is not ruled out. The app says this.
-- Season: Portugal's peak-date trend (+45.6 days per decade) crosses the satellite change on a date the satellites disagree about; the app flags it as a possible artifact.
+- Season: Portugal's (+45.6 days per decade) and Punjab's (+34.5) peak-date trends cross the satellite change on a date the satellites disagree about; the app flags them as possible artifacts.
 
 ### Cut
 
-Stretch goals not built: Terra extension, Ask, forecast, Helix, Spanish. Atlas regions after
-Portugal depend on the background fetch (above).
+Built from the stretch list: Terra extension, forecast, Ask. Cut: Fire Helix (the spec gives it
+no design beyond "only if everything else is done and checked") and Spanish (not in the spec;
+every string would need a second copy reviewed by a speaker).
 
 ### A person must check
 
 - Every region box in `pipeline/config.yaml`, and that clipping to the country outline is what the team wants (see the decision on Portugal below).
-- The top five fire years per region against local knowledge (Córdoba 2003, 2004, 2006, 2005, 2008; California 2020, 2021, 2008, 2017, 2018; Portugal 2005, 2017, 2003, 2009, 2012).
+- The top five fire years per region against local knowledge (Córdoba 2003, 2004, 2006, 2005, 2008; California 2020, 2021, 2008, 2017, 2018; Portugal 2005, 2017, 2003, 2009, 2012; Punjab–Haryana 2016, 2007, 2009, 2012, 2005).
 - `REFERENCES.md`: paper citations were written from memory of the literature and need checking against the originals.
 - Whether the Pettitt reading for Córdoba (less burning after 2012) matches local records.
+- Ask, once `LLM_API_KEY` is set: it has not been run against the model.
 
 ### Usability pass (desktop, from a fresh visit)
 
 | Task | Path | Clicks |
 |---|---|---|
-| Why does 2012 look odd? | First screen: the finding sentence ("Raw counts jump 2.7 times at the 2012 satellite change") and the labelled dashed rule; Harmonized removes it | 0 (1 to see it go) |
+| Why does 2012 look odd? | First screen: the finding sentence ("Raw counts jump 2.5 times at the 2012 satellite change") and the labelled dashed rule; Harmonized removes it | 0 (1 to see it go) |
 | Which month usually burns most? | Calendar's median-by-month bars and underlined fire-season months on the first screen; Season for the dial | 0 (1) |
 | Is this month unusual? | This month | 1 |
 | CSV for a drawn box | Area, Draw a box, drag, Download hotspots CSV | 3 and a drag |
