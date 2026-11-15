@@ -30,6 +30,18 @@ AREA_FAMILIES = {
 SESSION = requests.Session()
 
 
+def budget_spent(r: requests.Response) -> bool:
+    """FIRMS answers a spent transaction budget with HTTP 400 "Invalid MAP_KEY.", so ask the key's status."""
+    if r.status_code != 400 or "Invalid MAP_KEY" not in r.text[:100]:
+        return False
+    status = SESSION.get(f"https://firms.modaps.eosdis.nasa.gov/mapserver/mapkey_status/?MAP_KEY={map_key()}", timeout=60)
+    try:
+        info = status.json()
+    except ValueError:
+        return False
+    return info.get("current_transactions", 0) >= info.get("transaction_limit", 1)
+
+
 def get(url: str, stream: bool = False) -> requests.Response:
     """GET with two retries and backoff; 429 waits a minute. The key never reaches a log."""
     shown = url.replace(map_key() or "\0", "KEY")
@@ -38,7 +50,7 @@ def get(url: str, stream: bool = False) -> requests.Response:
     while attempt < 3:
         try:
             r = SESSION.get(url, stream=stream, timeout=120)
-            if r.status_code == 429 or (not stream and "Exceeding allowed transaction" in r.text[:200]):
+            if r.status_code == 429 or (not stream and "Exceeding allowed transaction" in r.text[:200]) or budget_spent(r):
                 # The key allows 5,000 transactions per 10 minutes; a 5-day area call costs about 10.
                 waits += 1
                 if waits > 20:
