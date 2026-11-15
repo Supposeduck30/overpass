@@ -1,0 +1,77 @@
+.figure {
+  padding-bottom: 64px;
+  scroll-margin-top: 96px;
+}
+
+.figure + .figure,
+.unverified {
+  padding-top: 48px;
+  border-top: 1px solid var(--night);
+}
+
+.figure-stack > svg + svg {
+  border-top: 1px solid var(--plate-rule);
+}
+
+.figure-note,
+.figure-mind {
+  margin-top: 16px;
+  max-width: 80ch;
+  font-size: var(--t15);
+  line-height: 22px;
+}
+
+.figure .table-twin {
+  margin-top: 16px;
+}
+
+.figure-year {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 12px;
+}
+
+.figure-year input {
+  width: 280px;
+  max-width: 44vw;
+  accent-color: var(--night);
+}
+
+.figure-year output {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure-dial {
+  display: flex;
+  align-items: center;
+}
+
+.figure-dial-stacked {
+  flex-direction: column;
+}
+
+.unverified h2 {
+  font-size: var(--t22);
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.unverified ul {
+  margin-top: 16px;
+  padding-left: 20px;
+  max-width: 80ch;
+}
+
+.unverified li + li {
+  margin-top: 8px;
+}
+
+@media (max-width: 720px) {
+  .figure {
+    padding-bottom: 48px;
+  }
+}

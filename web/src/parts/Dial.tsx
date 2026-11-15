@@ -7,8 +7,8 @@ export const DIAL_SATS: DriftSat[] = ["terra", "aqua", "snpp", "noaa20"];
 
 /** Ring radius for each satellite, as a share of the dial radius, so arcs that overlap in time stay apart. */
 const LANE: Record<DriftSat, number> = { terra: 0.86, aqua: 0.86, snpp: 0.7, noaa20: 0.54 };
-/** Aqua is the one that drifts, so it carries the "now" color; the rest are chalk at different weights. */
-const STROKE: Record<DriftSat, string> = { terra: TOKENS.lightBlue, aqua: TOKENS.sodium, snpp: TOKENS.chalk, noaa20: TOKENS.chalk };
+/** Morning Terra is light blue; the afternoon satellites are chalk, told apart by lane and weight. */
+const STROKE: Record<DriftSat, string> = { terra: TOKENS.lightBlue, aqua: TOKENS.chalk, snpp: TOKENS.chalk, noaa20: TOKENS.chalk };
 
 /** Local solar hour to an angle in radians: noon at the top, clockwise. */
 export function hourAngle(hour: number): number {
@@ -51,7 +51,7 @@ interface Props {
 
 /** 24-hour local-solar-time ring. Each satellite is an arc over the middle half of its daytime overpass times, with a tick at the median. */
 export function Dial({ row, size }: Props) {
-  const R = size / 2 - 34;
+  const R = size / 2 - 56;
   const present = DIAL_SATS.filter((sat) => row[`${sat}Lst`] != null);
   return (
     <svg className="dial" width={size} height={size} viewBox={`${-size / 2} ${-size / 2} ${size} ${size}`} role="img"
@@ -80,12 +80,15 @@ export function Dial({ row, size }: Props) {
         const r = R * LANE[sat];
         const [x0, y0] = point(med, r - 7);
         const [x1, y1] = point(med, r + 7);
-        const [lx, ly] = point(med, r - 20);
+        // Outer-lane satellites are labeled outside the ring; the inner two sit just before their arcs.
+        const outer = LANE[sat] > 0.8;
+        const [lx, ly] = outer ? point(med, R + 14) : point(q1 - 0.35, r);
+        const anchor = outer ? (med >= 12 ? "start" : "end") : "end";
         return (
           <g key={sat}>
             <path d={arc(q1, q3, r)} fill="none" stroke={STROKE[sat]} strokeWidth={sat === "aqua" ? 5 : 3.5} strokeLinecap="butt" opacity={sat === "noaa20" ? 0.7 : 1} />
             <line x1={x0} y1={y0} x2={x1} y2={y1} stroke={STROKE[sat]} strokeWidth={2} />
-            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" className="dial-label" fill={STROKE[sat]}>
+            <text x={lx} y={ly} textAnchor={anchor} dominantBaseline="central" className="dial-label" fill={STROKE[sat]}>
               {SAT_NAMES[sat]} {formatHour(med)}
             </text>
           </g>

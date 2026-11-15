@@ -9,8 +9,8 @@ import Calendar from "./views/Calendar";
 const VIEWS: Record<View, React.ComponentType> = {
   calendar: Calendar,
   month: lazy(() => import("./views/ThisMonth")),
-  season: NotBuilt,
-  evidence: NotBuilt,
+  season: lazy(() => import("./views/Season")),
+  evidence: lazy(() => import("./views/Evidence")),
   scenes: NotBuilt,
 };
 
