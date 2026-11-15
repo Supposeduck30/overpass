@@ -91,7 +91,7 @@ export function Frame({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <nav className="frame-nav" aria-label="Views">
+      <nav className="frame-nav" aria-label="Views and tools">
         <ul className="frame-views">
           {VIEWS.map((v) => (
             <li key={v}>
@@ -111,16 +111,15 @@ export function Frame({ children }: { children: ReactNode }) {
         </div>
       </nav>
 
-      <div className="frame-hint">
-        {showHint && (
-          <p>
-            Rows above 2012 come from an older, coarser satellite. Try <strong>Harmonized</strong> to put every year on one scale.{" "}
-            <button type="button" className="btn btn-quiet" onClick={dismissHint}>Dismiss</button>
-          </p>
-        )}
-      </div>
-
       <main id="view" className="frame-main" tabIndex={-1}>
+        <div className="frame-hint">
+          {showHint && (
+            <p>
+              Rows above 2012 come from an older, coarser satellite. Try <strong>Harmonized</strong> to put every year on one scale.{" "}
+              <button type="button" className="btn btn-quiet" onClick={dismissHint}>Dismiss</button>
+            </p>
+          )}
+        </div>
         {children}
       </main>
 

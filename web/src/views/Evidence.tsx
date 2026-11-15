@@ -19,6 +19,7 @@ export default function Evidence() {
 
   return (
     <div>
+      <h1 className="sr-only">Evidence for the method in {region.name}</h1>
       <Seam />
       <Splits />
       <Ladder />

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function Drawer({ title, onClose, children, kind = "side" }: Props) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const opener = useRef<Element | null>(null);
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export function Drawer({ title, onClose, children, kind = "side" }: Props) {
   return (
     <>
       <div className="drawer-scrim" onClick={onClose} />
-      <aside ref={ref} className={`drawer drawer-${kind}`} role="dialog" aria-modal="true" aria-label={title}>
+      <div ref={ref} className={`drawer drawer-${kind}`} role="dialog" aria-modal="true" aria-label={title}>
         <div className="drawer-head">
           <h2>{title}</h2>
           <button type="button" className="btn" onClick={onClose}>Close</button>
         </div>
         <div className="drawer-body">{children}</div>
-      </aside>
+      </div>
     </>
   );
 }
