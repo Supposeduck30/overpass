@@ -1,6 +1,6 @@
 {
- "builtAt": "2026-11-15T02:52:56Z",
- "commit": "e83324a",
+ "builtAt": "2026-11-15T03:14:07Z",
+ "commit": "c81091b",
  "availability": [
   {
    "data_id": "MODIS_NRT",
@@ -15,7 +15,7 @@
   {
    "data_id": "VIIRS_NOAA20_NRT",
    "min_date": "2026-08-01",
-   "max_date": "2026-11-14"
+   "max_date": "2026-11-15"
   },
   {
    "data_id": "VIIRS_NOAA20_SP",
@@ -25,7 +25,7 @@
   {
    "data_id": "VIIRS_NOAA21_NRT",
    "min_date": "2024-01-17",
-   "max_date": "2026-11-14"
+   "max_date": "2026-11-15"
   },
   {
    "data_id": "VIIRS_NOAA21_SP",
@@ -45,7 +45,7 @@
   {
    "data_id": "LANDSAT_NRT",
    "min_date": "2022-06-20",
-   "max_date": "2026-11-14"
+   "max_date": "2026-11-15"
   },
   {
    "data_id": "GOES_NRT",
@@ -84,8 +84,15 @@
    "noaa21": "2026-11-10",
    "snpp": "2026-11-02",
    "terra": "2026-11-04"
+  },
+  "punjab": {
+   "aqua": "2026-11-14",
+   "noaa20": "2026-11-15",
+   "noaa21": "2026-11-15",
+   "snpp": "2026-11-02",
+   "terra": "2026-11-10"
   }
  },
  "hotspotsDropped": [],
- "sizeMb": 28.8
+ "sizeMb": 53.5
 }

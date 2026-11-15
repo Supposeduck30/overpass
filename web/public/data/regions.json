@@ -61,5 +61,23 @@
    4
   ],
   "hotspots": true
+ },
+ {
+  "id": "punjab",
+  "name": "Punjab–Haryana, India",
+  "bbox": [
+   73.8,
+   27.6,
+   77.6,
+   32.6
+  ],
+  "tier": "atlas",
+  "fireYearStartMonth": 9,
+  "criticalMonths": [
+   10,
+   11,
+   5
+  ],
+  "hotspots": true
  }
 ]
