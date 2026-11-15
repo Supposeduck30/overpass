@@ -1,5 +1,7 @@
-import { count, monthLabel, MONTHS_LONG, SAT_NAMES, sourcePhrase, sourceSat } from "../lib/format";
-import { median, type CellValue, type Unit } from "../lib/series";
+import { seamSteps } from "../data/guards";
+import { count, monthLabel, MONTHS_LONG, SAT_NAMES, sourcePhrase, sourceSat, times } from "../lib/format";
+import { median, yearTotals, type CellValue, type Unit } from "../lib/series";
+import type { Validation } from "../types";
 
 export interface Handoff {
   ym: string;
@@ -63,4 +65,30 @@ export function describe(m: CellValue, { mode, unit, boxed, normal, latest }: De
   }
   const source = m.translated ? `, ${sourcePhrase(m.data.source)}. ${sat} counted ${count(m.raw)}.` : `, ${sourcePhrase(m.data.source)}.`;
   return `${when}: ${count(m.harmonized)} fire-days${range}${source}${usual}${partial}`;
+}
+
+/** The finding sentence for the monthly record, shared by the calendar and the terrain. */
+export function recordFinding(months: CellValue[], mode: "h" | "r", px: boolean, boxed: boolean, validation: Validation): string {
+  const years = yearTotals(months).filter((y) => y.complete);
+  if (mode === "h" || boxed) {
+    if (years.length < 3) return "Widen the year range to compare years.";
+    const top = years.reduce((a, b) => (b.harmonized > a.harmonized ? b : a));
+    const mid = median(years.map((y) => y.harmonized));
+    const where = boxed ? "In your box, " : "";
+    return `${where}${top.year} burned most: ${count(Math.round(top.harmonized))} fire-days, ${times(top.harmonized / mid)} the median year.`;
+  }
+  const seam = seamSteps(validation)[0];
+  if (px || !seam) {
+    const mean = (sat: string) => {
+      const v = years.filter((y) => y.raw != null && months.some((m) => m.year === y.year && sourceSat(m.data.source) === sat && m.month === 6)).map((y) => y.raw!);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
+    const before = mean("aqua");
+    const after = mean("snpp");
+    if (!before || !after) return "Raw records, as each satellite counted them.";
+    return `S-NPP records ${times(after / before)} as many ${px ? "detections" : "fire-days"} a year as Aqua did before it.`;
+  }
+  const gone = seam.harmonized.lo <= 0 && seam.harmonized.hi >= 0;
+  const after = gone ? "Harmonized, no step remains." : `Harmonized, the step is ${times(Math.exp(seam.harmonized.step), 2)}.`;
+  return `Raw counts jump ${times(Math.exp(seam.raw.step))} at the ${seam.ym.slice(0, 4)} satellite change. ${after}`;
 }

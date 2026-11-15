@@ -1,44 +1,17 @@
 import { useMemo, useState } from "react";
 import { useData } from "../data/context";
-import { seamSteps } from "../data/guards";
 import { inRange, useSelection } from "../data/selection";
 import { diverging, sequential } from "../lib/color";
-import { count, monthLabel, SAT_NAMES, sourceSat, times } from "../lib/format";
+import { count, monthLabel, SAT_NAMES, sourceSat } from "../lib/format";
 import { useIsMobile, useTween, useWidth } from "../lib/hooks";
-import { median, yearTotals, type CellValue } from "../lib/series";
+import type { CellValue } from "../lib/series";
 import { Finding, Waiting } from "../parts/Finding";
 import { Readout } from "../parts/Readout";
 import { TableTwin, type Column } from "../parts/TableTwin";
 import { useUrl } from "../state/url";
-import type { Validation } from "../types";
 import { CalendarPlate } from "./CalendarPlate";
-import { describe, handoffs, normalsAt } from "./calendarModel";
+import { describe, handoffs, normalsAt, recordFinding } from "./calendarModel";
 import "./Calendar.css";
-
-function finding(months: CellValue[], mode: "h" | "r", px: boolean, boxed: boolean, validation: Validation): string {
-  const years = yearTotals(months).filter((y) => y.complete);
-  if (mode === "h" || boxed) {
-    if (years.length < 3) return "Widen the year range to compare years.";
-    const top = years.reduce((a, b) => (b.harmonized > a.harmonized ? b : a));
-    const mid = median(years.map((y) => y.harmonized));
-    const where = boxed ? "In your box, " : "";
-    return `${where}${top.year} burned most: ${count(Math.round(top.harmonized))} fire-days, ${times(top.harmonized / mid)} the median year.`;
-  }
-  const seam = seamSteps(validation)[0];
-  if (px || !seam) {
-    const mean = (sat: string) => {
-      const v = years.filter((y) => y.raw != null && months.some((m) => m.year === y.year && sourceSat(m.data.source) === sat && m.month === 6)).map((y) => y.raw!);
-      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
-    };
-    const before = mean("aqua");
-    const after = mean("snpp");
-    if (!before || !after) return "Raw records, as each satellite counted them.";
-    return `S-NPP records ${times(after / before)} as many ${px ? "detections" : "fire-days"} a year as Aqua did before it.`;
-  }
-  const gone = seam.harmonized.lo <= 0 && seam.harmonized.hi >= 0;
-  const after = gone ? "Harmonized, no step remains." : `Harmonized, the step is ${times(Math.exp(seam.harmonized.step), 2)}.`;
-  return `Raw counts jump ${times(Math.exp(seam.raw.step))} at the ${seam.ym.slice(0, 4)} satellite change. ${after}`;
-}
 
 const TABLE: Column<CellValue>[] = [
   { key: "ym", label: "Month", value: (m) => m.ym, format: (m) => monthLabel(m.ym) },
@@ -82,7 +55,7 @@ export default function Calendar() {
   return (
     <section className="calendar">
       <Finding how={<>Each row is a year and each column a month. Brighter means more {unitWord}; a fire-day is one grid cell of about 25 km with fire seen on one day. Dashed lines mark the months when the satellite behind the record changed. Hatched months are translated from an older satellite, with denser hatching where the translation is less certain.</>}>
-        {finding(months, mode, px, sel.boxed, validation)}
+        {recordFinding(months, mode, px, sel.boxed, validation)}
       </Finding>
 
       <div className="calendar-controls">
