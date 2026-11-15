@@ -92,8 +92,9 @@ def hotspots(region_id: str, out_dir) -> int:
     total = 0
     for year, g in out.groupby(out["date_local"].str[:4]):
         path = out_dir / f"{year}.csv.gz"
-        with gzip.open(path, "wt", encoding="utf-8", newline="\n", compresslevel=9) as f:
-            g.to_csv(f, index=False)
+        # No timestamp or name in the header, so an unchanged year gives an identical file.
+        with open(path, "wb") as raw, gzip.GzipFile(filename="", mode="wb", fileobj=raw, compresslevel=9, mtime=0) as z:
+            z.write(g.to_csv(index=False, lineterminator="\n").encode("utf-8"))
         total += path.stat().st_size
     return total
 
