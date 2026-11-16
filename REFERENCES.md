@@ -60,6 +60,15 @@ pytest 9.2.0 (MIT), scikit-learn 1.9.1 (BSD-3-Clause, forecast).
 
 - Atkinson Hyperlegible Next, Braille Institute of America, via @fontsource 5.3.0. SIL Open Font License 1.1. https://www.brailleinstitute.org/freefont/
 
+## Demo slides (`slides/`)
+
+- Charts in `slides/index.html` are drawn with plain SVG from the files in `web/public/data/`; the cividis
+  ramp formula is the one in d3-scale-chromatic 3.1.1 (ISC).
+- Font: Atkinson Hyperlegible Next 400/600/800, the same @fontsource 5.3.0 files, copied to `slides/fonts/`
+  (SIL Open Font License 1.1).
+- Screenshots on slide 6 are of the running Overpass app, captured with Playwright (Apache-2.0) and Chromium.
+- PDF and PNG export: Playwright.
+
 ## Images
 
 Overpass uses no photographs, logos or generated images. Every figure is drawn by the app from

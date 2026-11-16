@@ -17,7 +17,7 @@ from lib.io import DATA, load_config, read_json, region_ids, write_json
 
 FIRST_SNPP_MONTH = "2012-02"
 SOURCE_SHARE_WEIGHT = 0.7
-COVERAGE_FLOOR = 0.85
+COVERAGE_TARGET = 0.90
 SOURCE_SAT = {"terra-translated": "terra", "aqua-translated": "aqua", "snpp": "snpp", "noaa20-translated": "noaa20"}
 
 
@@ -128,7 +128,7 @@ def fit_link(cfg: dict, region_id: str, link: str, unit: str, rng: np.random.Gen
     cov_raw = models.coverage(cv)
     scale = 1.0
     cov = cov_raw
-    if cov_raw < COVERAGE_FLOOR:
+    if cov_raw < COVERAGE_TARGET:
         scale = models.conformal_scale(cv["pred"], cv["lo"], cv["hi"], cv["v"])
         cv["lo"], cv["hi"] = models.widen(cv["pred"], cv["lo"], cv["hi"], scale)
         cov = models.coverage(cv)

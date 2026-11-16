@@ -135,6 +135,9 @@ export interface SplitTest {
   bias: number | null;
   n: number;
   coverage90: number;
+  /** Coverage before widening; the widening factor is learned from the training years only. */
+  coverage90Unwidened?: number;
+  intervalScale?: number;
 }
 
 export interface Step {

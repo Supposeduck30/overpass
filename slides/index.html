@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overpass demo slides</title>
+<meta name="viewport" content="width=1920">
+<style>
+@font-face { font-family: "AHN"; src: url("fonts/atkinson-hyperlegible-next-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "AHN"; src: url("fonts/atkinson-hyperlegible-next-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "AHN"; src: url("fonts/atkinson-hyperlegible-next-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
+:root { --overcast: #E8ECEF; --chalk: #F6F8F9; --night: #0B2343; --slate: #566575; --sodium: #FFD84A; }
+@page { size: 1920px 1080px; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #9aa4ad; }
+body { font-family: "AHN", sans-serif; font-variant-numeric: tabular-nums; color: var(--night); }
+.slide { width: 1920px; height: 1080px; position: relative; overflow: hidden; background: var(--overcast);
+  margin: 0 auto 40px; page-break-after: always; break-after: page; }
+@media print { html, body { background: var(--overcast); } .slide { margin: 0; } }
+.view { position: absolute; left: 120px; top: 64px; font-size: 22px; font-weight: 600; color: var(--slate); }
+.view b { color: var(--night); font-weight: 800; }
+h1 { position: absolute; left: 120px; top: 104px; width: 1560px; font-weight: 800; font-size: 56px; line-height: 64px; letter-spacing: -0.4px; }
+h1 .soft { color: var(--slate); }
+.body { position: absolute; font-size: 26px; line-height: 37px; }
+.body p + p { margin-top: 18px; }
+.body b { font-weight: 800; }
+.small { position: absolute; font-size: 17px; line-height: 24px; color: var(--slate); }
+.cap { position: absolute; font-size: 19px; line-height: 27px; color: var(--slate); }
+.cap b { color: var(--night); font-weight: 600; }
+.shot { position: absolute; display: block; }
+.plate { position: absolute; background: var(--night); color: var(--chalk); }
+.step { flex:1; background:var(--chalk); padding:18px 18px; }
+.step .n { font-weight:800; font-size:22px; margin-bottom:8px; }
+.foot { position: absolute; left: 120px; right: 120px; bottom: 20px; display: flex; justify-content: space-between; font-size: 17px; color: var(--slate); }
+</style>
+</head>
+<body>
+
+<!-- 1: problem, raw calendar -->
+<section class="slide" id="s1">
+  <div class="view"><b>Overpass</b>&nbsp;&nbsp;NASA Space Apps 2026: Harmonization of MODIS and VIIRS Hot Spots</div>
+  <h1 id="s1-title"></h1>
+  <div class="body" style="left:120px; top:290px; width:640px;">
+    <p>Land managers, fire scientists and reporters judge a season by comparing it with past ones. NASA's satellite fire record makes that hard: it was built by different cameras in turn, and each counts fires differently.</p>
+    <p><b>MODIS</b>, the older camera, flew first. <b>VIIRS</b>, a sharper camera, took over in 2012 and sees far more small fires. So the record jumps when the camera changes, not when the land does.</p>
+    <p>It just happened again: Suomi NPP, which carried the record since 2012, stopped sending fire data on Nov 2, 2026.</p>
+  </div>
+  <img class="shot" src="img/app-cal-raw.png" style="left:830px; top:282px; height:700px;" alt="Overpass fire calendar for California in Raw records mode">
+  <div class="cap" style="left:830px; top:992px; width:970px;"><b>Calendar, Raw records.</b> One row per year, one square per month, brighter means more fire. Every row after the 2012 line glows.</div>
+  <div class="foot"><span></span><span>1 / 8</span></div>
+</section>
+
+<!-- 2: harmonized calendar -->
+<section class="slide" id="s2">
+  <div class="view"><b>Calendar</b>&nbsp;&nbsp;the main view</div>
+  <h1>One click on Harmonized puts 26 years in one unit, and the 2012 wall is gone.</h1>
+  <div class="body" style="left:120px; top:290px; width:640px;">
+    <p>Overpass works like a currency converter. It learns the exchange rate from 2012 to 2020, when old and new cameras flew side by side, then converts every older month into today's unit.</p>
+    <p id="s2-rate"></p>
+    <p>Converted months are hatched and carry a <b>90% range</b>: where we expect the true value 9 times in 10.</p>
+  </div>
+  <div class="small" style="left:120px; top:860px; width:640px;" id="s2-terra"></div>
+  <div class="small" style="left:120px; top:930px; width:640px;">Unit: <b style="color:#0B2343">fire-days</b>, the number of map squares (a quarter degree wide) where fire was seen on a given day, added up over the month.</div>
+  <img class="shot" src="img/app-cal-h.png" style="left:830px; top:282px; height:700px;" alt="Overpass fire calendar for California in Harmonized mode">
+  <div class="cap" style="left:830px; top:992px; width:970px;"><b>Calendar, Harmonized.</b> Same plate, same color scale. Rows before 2012 now read in the same unit as rows after.</div>
+  <div class="foot"><span></span><span>2 / 8</span></div>
+</section>
+
+<!-- 3: this month -->
+<section class="slide" id="s3">
+  <div class="view"><b>This month</b>&nbsp;&nbsp;the first question people ask</div>
+  <h1 id="s3-title"></h1>
+  <div class="body" style="left:120px; top:270px; width:1560px;">
+    <p>It compares days 1 to <span id="s3-d"></span> of this month with days 1 to <span id="s3-d2"></span> of every past one, so a half-finished month is never unfairly "below normal". The live numbers come from NOAA-20, the satellite that replaced Suomi NPP, converted into the same unit.</p>
+  </div>
+  <img class="shot" src="img/app-month.png" style="left:120px; top:390px; width:1080px;" alt="This month strip: days 1 to 14 of each November with 2026 marked">
+  <div class="cap" style="left:1250px; top:400px; width:550px; font-size:22px; line-height:31px;"><b>So far this month.</b> Each tick is a past November at day 14. The yellow mark is now; the grey bar is the middle half of past years. Below it, the same Novembers at month's end.</div>
+  <div class="plate" style="left:1250px; top:560px; width:550px; padding:18px 24px; font-size:19px; line-height:27px;" id="s3-check"></div>
+  <img class="shot" src="img/app-month-curve.png" style="left:120px; top:700px; width:1080px;" alt="Season-to-date curve against the range of past years">
+  <div class="cap" style="left:1250px; top:760px; width:550px; font-size:22px; line-height:31px;"><b>Season so far.</b> This year's running total (yellow) against the median year and the bands that 1 in 10 and 9 in 10 past years fell below.</div>
+  <div class="small" style="left:1250px; top:930px; width:550px;" id="s3-src"></div>
+  <div class="foot"><span></span><span>3 / 8</span></div>
+</section>
+
+<!-- 4: season -->
+<section class="slide" id="s4">
+  <div class="view"><b>Season</b>&nbsp;&nbsp;is the fire season moving?</div>
+  <h1 id="s4-title"></h1>
+  <div class="body" style="left:120px; top:290px; width:560px;">
+    <p>Each bar is one fire year: from the day 10% of its fires had burned to the day 90% had. The dot is the midpoint.</p>
+    <p>Overpass fits a trend to each date and only calls it a trend when the numbers support it. It also re-checks every trend on one camera alone, so a camera change can't pass as a climate signal.</p>
+  </div>
+  <img class="shot" src="img/app-season.png" style="left:730px; top:282px; width:1070px;" alt="Season view: onset to end of each fire year with trend lines">
+  <div class="small" style="left:730px; top:922px; width:1070px;" id="s4-src"></div>
+  <div class="foot"><span></span><span>4 / 8</span></div>
+</section>
+
+<!-- 5: how it works -->
+<section class="slide" id="s5h">
+  <div class="view"><b>How it works</b>&nbsp;&nbsp;from FIRMS files to one record</div>
+  <h1>Four satellites, three hand-offs, one unit. <span class="soft">Every step re-runs from the code.</span></h1>
+  <div style="position:absolute; left:120px; top:250px; width:1680px; height:96px; display:flex; font-size:20px; line-height:26px;">
+    <div style="flex:0 0 7.2%; background:#566575; color:#F6F8F9; padding:12px 10px;"><b>Terra</b><br>a.m.</div>
+    <div style="flex:0 0 36.5%; background:#7A8896; color:#F6F8F9; padding:12px 16px;"><b>Aqua MODIS</b> (p.m.)<br>Aug 2002 to Jan 2012</div>
+    <div style="flex:1; background:#0B2343; color:#F6F8F9; padding:12px 16px;"><b>Suomi NPP VIIRS</b>, the reference unit<br>Feb 2012 to Oct 2026</div>
+    <div style="flex:0 0 3%; background:#FFD84A;"></div>
+  </div>
+  <div class="small" style="left:120px; top:352px; width:1680px; display:flex; justify-content:space-between;"><span>Nov 2000</span><span>Terra → S-NPP and Aqua → S-NPP are each fitted on 2012 to 2020, when both flew. NOAA-20 → S-NPP is fitted on 2020 to Oct 2026.</span><span style="color:#0B2343; font-weight:600;">NOAA-20 from Nov 2026</span></div>
+  <div style="position:absolute; left:120px; top:430px; width:1680px; display:flex; gap:14px; font-size:20px; line-height:27px;">
+    <div class="step"><div class="n">1 Fetch</div>FIRMS archives and API: MODIS C6.1 (Terra, Aqua) and VIIRS 375 m (S-NPP, NOAA-20, NOAA-21), science-quality first, near-real-time for the latest weeks.</div>
+    <div class="step"><div class="n">2 Clean</div>Keep vegetation fires only (type 0). MODIS confidence 30+, VIIRS nominal or high. Drop known static heat sources.</div>
+    <div class="step"><div class="n">3 Grid</div>Each detection goes to a 0.25° square on its local solar date. A square with any fire that day is one <b>fire-day</b>.</div>
+    <div class="step"><div class="n">4 Month</div>Sum fire-days per region, satellite and month. Months with a satellite outage are flagged partial and left out.</div>
+    <div class="step"><div class="n">5 Convert</div>For each hand-off, try five models from one global rate to quantile mapping; keep the simplest that wins leave-one-year-out tests.</div>
+    <div class="step"><div class="n">6 Test</div>Blind year splits, range coverage, step tests at each hand-off, the same checks on one camera alone.</div>
+    <div class="step" style="background:#0B2343; color:#F6F8F9;"><div class="n" style="color:#FFD84A;">7 Export</div>JSON and CSV that the app reads. Every number on screen comes from a file the pipeline wrote.</div>
+  </div>
+  <div class="body" style="left:120px; top:760px; width:1680px; font-size:24px; line-height:34px;" id="s5h-season"></div>
+  <div class="small" style="left:120px; top:960px; width:1680px;">Python + pandas pipeline in <b style="color:#0B2343">pipeline/</b> (fetch → clean → grid → aggregate → calibrate → validate → export).</div>
+  <div class="foot"><span></span><span>5 / 8</span></div>
+</section>
+
+<!-- 6: evidence -->
+<section class="slide" id="s5">
+  <div class="view"><b>Evidence</b>&nbsp;&nbsp;seven checks per region, including where we fall short</div>
+  <h1 id="s5-title"></h1>
+  <div class="body" style="left:120px; top:290px; width:560px;" id="s5-body"></div>
+  <img class="shot" src="img/app-ev-back.png" style="left:740px; top:282px; width:960px;" alt="Evidence: backward test, predictions against real counts for 2012 to 2015">
+  <img class="shot" src="img/app-ev-atlas.png" style="left:740px; top:716px; width:600px;" alt="Evidence: world map of exchange rates in 10 regions">
+  <div class="cap" style="left:1380px; top:726px; width:420px; font-size:22px; line-height:31px;" id="s5-atlas"></div>
+  <div class="foot"><span></span><span>6 / 8</span></div>
+</section>
+
+<!-- 6: scenes -->
+<section class="slide" id="s6">
+  <div class="view"><b>Scenes</b>&nbsp;&nbsp;the record you can walk around</div>
+  <h1>26 years of fire as terrain: switch to Harmonized and the 2012 cliff melts away.</h1>
+  <div class="body" style="left:120px; top:290px; width:560px;">
+    <p><b>Cliff Melt</b> makes every month a hill: across is the month, depth is the year, height is fire-days. Raw, the land hits a wall at 2012. Harmonized, the ridges run unbroken.</p>
+  </div>
+  <img class="shot" src="img/app-scene-fly.png" style="left:120px; top:600px; width:540px;" alt="Column Flyover: one column per map square, September 2020">
+  <div class="cap" style="left:120px; top:972px; width:560px;"><b>Column Flyover.</b> One column per map square; scrub through months. Here: Sep 2020.</div>
+  <img class="shot" src="img/app-scene-cliff.png" style="left:720px; top:282px; width:1080px;" alt="Cliff Melt 3D terrain of California's harmonized fire record">
+  <div class="cap" style="left:720px; top:1015px; width:1080px;"><b>Cliff Melt, Harmonized.</b> The yellow line traces 2026, the year in progress.</div>
+  <div class="foot"><span></span><span>7 / 8</span></div>
+</section>
+
+<!-- 7: area, downloads, link -->
+<section class="slide" id="s7">
+  <div class="view"><b>Area and downloads</b>&nbsp;&nbsp;your place, your numbers</div>
+  <h1 id="s7-title"></h1>
+  <img class="shot" src="img/app-area.png" style="left:120px; top:270px; height:330px;" alt="Area sheet: draw a box or type coordinates">
+  <img class="shot" src="img/app-download.png" style="left:720px; top:270px; height:330px;" alt="Download menu">
+  <div class="body" style="left:1080px; top:270px; width:720px; font-size:24px; line-height:34px;">
+    <p><b>Draw a box</b> inside a prepared region for its own calendar. Anywhere else on Earth, the box shows recent detections.</p>
+    <p><b>Download</b> the monthly series with its ranges, every raw hotspot as CSV, the calendar image, and the test results.</p>
+  </div>
+  <div class="plate" style="left:120px; top:650px; width:1680px; height:290px; padding:44px 56px;">
+    <div style="font-size:20px; color:#B9C4D0;">Open the app, free, no login</div>
+    <div style="font-weight:800; font-size:44px; line-height:58px;">web-delta-jet-dxj3qsvt5g.vercel.app</div>
+    <div style="font-size:21px; line-height:30px; margin-top:16px; width:1560px;">For land managers, fire scientists and reporters asking "is this season unusual, or did the satellite change?" A reporter can check a "record year" claim; a land manager can see if this November is outside the normal range before extending burn rules. Live fire response is FIRMS's job, not ours. Next: step-test the NOAA-20 seam on Dec 1, when its first full month closes.</div>
+  </div>
+  <div class="body" style="left:120px; top:968px; font-size:24px;">Built on NASA FIRMS data. Open source, Apache-2.0.</div>
+  <div class="foot"><span></span><span>8 / 8</span></div>
+</section>
+
+<script>
+const only = new URLSearchParams(location.search).get("s");
+if (only) { document.querySelectorAll(".slide").forEach((el, i) => { if (i + 1 !== +only) el.remove(); else el.style.margin = "0"; }); }
+const D = "../web/public/data/";
+const get = p => fetch(D + p).then(r => { if (!r.ok) throw new Error(p + " " + r.status); return r.json(); });
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const pct = n => Math.round(n * 100) + "%";
+const $ = id => document.getElementById(id) || document.createElement("div");
+(async () => {
+  const [mCal, vCal, atlas, regions, cur, mtd, clock] = await Promise.all([
+    get("california/monthly.json"), get("california/validation.json"), get("atlas.json"),
+    get("regions.json"), get("current/california.json"), get("california/mtd.json"), get("california/clock.json")
+  ]);
+  const seam = vCal.seams["2012-02"];
+  $("s1-title").innerHTML = `The fire record jumps ${Math.exp(seam.raw.step).toFixed(1)} times in 2012. <span class="soft">The fires didn't.</span>`;
+
+  const ex = mCal.links.aqua_snpp.exchange;
+  $("s2-rate").innerHTML = `In a typical California month, one older-camera fire-day is worth about <b>${ex.rate.toFixed(1)}</b> new ones. The rate is not one fixed number: it shrinks in busy months, where both cameras catch the big fires. After converting, the 2012 jump measures ×${Math.exp(seam.harmonized.step).toFixed(2)}, and its range includes no jump at all.`;
+  const tl = vCal.terraLink;
+  $("s2-terra").innerHTML = `Nov 2000 to Jul 2002 come from Terra, a morning satellite, converted with its own rate (×${tl.exchange.rate.toFixed(1)}), fitted the same way on ${tl.fit.replace("..", " to ")}.`;
+
+  const nov = mtd.byMonth[cur.ym.slice(5, 7)], d = cur.day, yr = cur.ym.slice(0, 4);
+  const now = nov[yr][d - 1];
+  const past = Object.entries(nov).filter(([y, v]) => y !== yr && v.length >= d).map(([, v]) => v[d - 1]);
+  $("s3-title").textContent = `Is this month unusual? So far, California has burned more than in ${past.filter(v => v < now).length} of ${past.length} past Novembers.`;
+  $("s3-d").textContent = d; $("s3-d2").textContent = d;
+  const nowRaw = cur.fireDaysToDate;
+  const hh = vCal.handoffHoldout, hin = hh.points.filter(p => p.snpp >= p.lo && p.snpp <= p.hi).length;
+  $("s3-check").innerHTML = `<b style="color:#FFD84A">Is the NOAA-20 conversion right?</b> Tested blind: fitted on 2020 to 2025, it predicted S-NPP's own ${hh.points.length} months of 2026 within a median ${Math.round(hh.medApe * 100)}% (${hin} of ${hh.points.length} inside the 90% range). Unconverted, NOAA-20's ${fmt(nowRaw)} fire-days still beat ${past.filter(v => v < nowRaw).length} of ${past.length}.`;
+  $("s3-src").textContent = `Days 1 to ${d}: ${fmt(now)} fire-days in S-NPP units, stored ${cur.asOf.slice(0, 16).replace("T", " ")} UTC. Screens from the running app.`;
+
+  const pk = clock.trend.peak;
+  $("s4-title").textContent = `California's fire season midpoint moved ${Math.abs(pk.daysPerDecade).toFixed(1)} days ${pk.daysPerDecade < 0 ? "earlier" : "later"} per decade. Overpass says that is not a clear trend yet.`;
+  $("s4-src").textContent = `Midpoint trend ${pk.daysPerDecade.toFixed(1)} days per decade (${pk.lo.toFixed(1)} to +${pk.hi.toFixed(1)}), p = ${pk.p.toFixed(2)}. Source: california/clock.json.`;
+
+  const sr = vCal.seasonRates;
+  $("s5h-season").innerHTML = `<b>Does the rate change between fire season and the off-season?</b> Yes. In California it is ×${sr.fireSeason.rate.toFixed(1)} (${sr.fireSeason.lo.toFixed(1)} to ${sr.fireSeason.hi.toFixed(1)}) in fire season and ×${sr.offSeason.rate.toFixed(1)} (${sr.offSeason.lo.toFixed(1)} to ${sr.offSeason.hi.toFixed(1)}) outside it. A per-season rate was one of the five models tested; it lost (median error ${Math.round(vCal.ladder.find(r => r.model === "M2").medApe * 100)}%) to a log-linear model whose rate falls as months get busier (${Math.round(vCal.ladder.find(r => r.chosen).medApe * 100)}%), because busy months and fire season are mostly the same months. Cloud cover and view angle are not modelled yet.`;
+  const bk = vCal.backward;
+  const inside = bk.points.filter(p => p.actual >= p.lo && p.actual <= p.hi).length;
+  const better = atlas.filter(a => a.medApeOurs < a.medApeGlobalFactor - 1e-9).length;
+  const rs = [...atlas].sort((a, b) => a.exchangeRate - b.exchangeRate);
+  const nm = Object.fromEntries(regions.map(r => [r.id, r.name.split(",")[0]]));
+  $("s5-title").textContent = `Tested blind on four years it never saw, Overpass was off by a median ${Math.round(bk.medApe * 100)}%.`;
+  $("s5-body").innerHTML = `<p>We hid 2012 to 2015, trained on 2016 to 2020, and asked Overpass to rebuild the hidden years from the older camera alone.</p>
+    <p>Our first 90% ranges caught the real count in only ${pct(bk.coverage90Unwidened)} of months. So we widened them ×${bk.intervalScale.toFixed(2)}, a factor learned from the training years alone, never the hidden ones.</p>
+    <p>Now the real count lands inside in <b>${inside} of ${bk.points.length}</b> months (${pct(inside / bk.points.length)}). Still a little short of 90%, and the app says so on the same page.</p>`;
+  $("s5-atlas").innerHTML = `<b>One rate does not fit the planet.</b> It runs from ${rs[0].exchangeRate.toFixed(1)} in ${nm[rs[0].id]} to ${rs[rs.length - 1].exchangeRate.toFixed(1)} in ${nm[rs[rs.length - 1].id]}. Fitting each region beat one global rate in ${better} of ${atlas.length}.`;
+
+  $("s7-title").textContent = `${regions.length} regions on 6 continents today, any box on Earth, every number downloadable.`;
+
+  await document.fonts.ready;
+  window.__ready = true;
+})().catch(e => { document.body.insertAdjacentHTML("afterbegin", `<pre style="color:red;font-size:30px">${e}</pre>`); window.__ready = "error"; });
+</script>
+</body>
+</html>

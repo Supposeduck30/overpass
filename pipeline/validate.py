@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from calibrate import FIRST_SNPP_MONTH, SOURCE_SAT, link_windows, load_monthly, overlap_frame, pooled, wide
+from calibrate import COVERAGE_TARGET, FIRST_SNPP_MONTH, factor_interval, SOURCE_SAT, link_windows, load_monthly, overlap_frame, pooled, wide
 from lib import models
 from lib.io import DATA, load_config, read_json, region_ids, write_json
 from lib.pettitt import pettitt
@@ -19,20 +19,30 @@ MIN_DETECTIONS_FOR_LST = 20
 
 
 def split_test(d: pd.DataFrame, pool: pd.DataFrame, rung: str, train: tuple[int, int], test: tuple[int, int],
-               iterations: int, scale: float, rng: np.random.Generator) -> dict:
+               iterations: int, rng: np.random.Generator) -> dict:
+    """Fit on `train` years, predict `test` years.
+
+    The interval widening is learned from leave-one-year-out residuals inside the training years only,
+    so the test years never touch the interval width.
+    """
     tr = d[d["year"].between(*train)]
     te = d[d["year"].between(*test)]
     p = pool[pool["year"].between(*train)]
     pred = models.predict(models.fit(rung, tr, p), te["m"], te["season"])
     lo, hi = models.interval(rung, tr, p, te["m"], te["season"], iterations, rng)
     lo, hi = np.minimum(lo, pred), np.maximum(hi, pred)
-    if scale != 1.0:
+    inside_raw = (te["v"].to_numpy() >= lo - 1e-9) & (te["v"].to_numpy() <= hi + 1e-9)
+    cv = models.loyo_interval(rung, tr, p, iterations, rng)
+    scale = 1.0
+    if models.coverage(cv) < COVERAGE_TARGET:
+        scale = models.conformal_scale(cv["pred"], cv["lo"], cv["hi"], cv["v"], COVERAGE_TARGET)
         lo, hi = models.widen(pred, lo, hi, scale)
     inside = (te["v"].to_numpy() >= lo - 1e-9) & (te["v"].to_numpy() <= hi + 1e-9)
     points = [{"ym": ym, "pred": float(a), "lo": float(b), "hi": float(c), "actual": float(v), "source": float(m)}
               for ym, a, b, c, v, m in zip(te["ym"], pred, lo, hi, te["v"], te["m"])]
     return {"train": f"{train[0]}-{train[1]}", "test": f"{test[0]}-{test[1]}", "points": points,
-            **models.metrics(pred, te["v"]), "coverage90": float(inside.mean())}
+            **models.metrics(pred, te["v"]), "coverage90": float(inside.mean()),
+            "coverage90Unwidened": float(inside_raw.mean()), "intervalScale": float(scale)}
 
 
 def seam_tests(hm: pd.DataFrame, notes: list[str]) -> dict:
@@ -169,6 +179,44 @@ def handoff(cfg: dict, region_id: str, link2: dict, unit: str) -> dict:
     return out
 
 
+def season_rates(d: pd.DataFrame, iterations: int, rng: np.random.Generator) -> dict:
+    """Does the exchange rate change between fire season and the off-season? Year-block bootstrap 90% intervals."""
+    out = {}
+    for name, sel in (("fireSeason", d["season"]), ("offSeason", ~d["season"])):
+        s = d[sel]
+        if len(s) >= 12 and s["m"].sum() > 0:
+            v, lo, hi = factor_interval(s, iterations, rng)
+            out[name] = {"rate": v, "lo": lo, "hi": hi, "months": int(len(s))}
+    if len(out) == 2:
+        a, b = out["fireSeason"], out["offSeason"]
+        out["overlap"] = bool(a["lo"] <= b["hi"] and b["lo"] <= a["hi"])
+    return out
+
+
+def handoff_holdout(cfg: dict, region_id: str, link2: dict, unit: str, iterations: int,
+                    rng: np.random.Generator) -> dict | None:
+    """Blind test of the NOAA-20 -> S-NPP conversion: fit on 2020-2025, predict every 2026 month S-NPP also measured."""
+    src, tgt, first, last = link_windows(cfg, region_id)["noaa20_snpp"]
+    d = overlap_frame(region_id, src, tgt, first, last, unit)
+    pool = pooled(cfg, "noaa20_snpp", unit)
+    tr, te = d[d["year"] <= 2025], d[d["year"] == 2026]
+    if len(te) == 0 or len(tr) < 24:
+        return None
+    rung = link2["model"]
+    p = pool[pool["year"] <= 2025]
+    pred = models.predict(models.fit(rung, tr, p), te["m"], te["season"])
+    lo, hi = models.interval(rung, tr, p, te["m"], te["season"], iterations, rng) if rung != "identity" else (pred, pred)
+    lo, hi = np.minimum(lo, pred), np.maximum(hi, pred)
+    v = te["v"].to_numpy(float)
+    inside = (v >= lo - 1e-9) & (v <= hi + 1e-9)
+    total_err = float(pred.sum() / v.sum() - 1) if v.sum() > 0 else None
+    pts = [{"ym": ym, "noaa20": float(m), "pred": float(a), "lo": float(b), "hi": float(c), "snpp": float(x)}
+           for ym, m, a, b, c, x in zip(te["ym"], te["m"], pred, lo, hi, v)]
+    return {"train": f"{tr['ym'].min()}..{tr['ym'].max()}", "test": f"{te['ym'].min()}..{te['ym'].max()}",
+            "model": rung, **models.metrics(pred, v), "coverage90": float(inside.mean()),
+            "totalError": total_err, "points": pts}
+
+
 def terra_check(cfg: dict, region_id: str, links: dict, unit: str) -> dict:
     """Terra and Aqua each translated on their own into S-NPP units for 2002-2011, years neither link was fitted on.
 
@@ -202,8 +250,8 @@ def validate_region(cfg: dict, region_id: str) -> dict:
     pool = pooled(cfg, "aqua_snpp", unit)
     rung = l1["model"]
     y0, y1 = cfg["calibration_years"]
-    forward = split_test(d, pool, rung, (y0, y1 - 3), (y1 - 2, y1), B, l1["intervalScale"], rng)
-    backward = split_test(d, pool, rung, (y0 + 4, y1), (y0, y0 + 3), B, l1["intervalScale"], rng)
+    forward = split_test(d, pool, rung, (y0, y1 - 3), (y1 - 2, y1), B, rng)
+    backward = split_test(d, pool, rung, (y0 + 4, y1), (y0, y0 + 3), B, rng)
 
     full = hm[~hm["partial"]].copy()
     full["year"] = full["ym"].str[:4].astype(int)
@@ -229,6 +277,10 @@ def validate_region(cfg: dict, region_id: str) -> dict:
         "drift": drift, "driftEffect": effect,
         "handoff": handoff(cfg, region_id, l2, unit),
         "terraCheck": terra_check(cfg, region_id, model["links"], unit),
+        "terraLink": {k: model["links"]["terra_snpp"][k] for k in ("model", "fit", "months", "factor", "exchange",
+                                                                   "coverage90", "intervalScale")},
+        "seasonRates": season_rates(d, B, rng),
+        "handoffHoldout": handoff_holdout(cfg, region_id, l2, unit, B, rng),
         "exchange": l1["exchange"],
         "topYears": [{"year": int(y), "total": float(t)} for y, t in top["total"].items()],
         "pooledRegions": l1["pooledRegions"],
@@ -251,6 +303,9 @@ def summary(v: dict) -> str:
         f"at {v['exchange']['atSourceCount']:.0f} Aqua fire-days",
         f"backward test (fit {v['backward']['train']}, predict {v['backward']['test']}): medAPE {v['backward']['medApe']:.1%}, "
         f"bias {v['backward']['bias']:+.1%}, coverage {v['backward']['coverage90']:.0%}",
+        f"backward coverage before widening {v['backward']['coverage90Unwidened']:.0%}, scale x{v['backward']['intervalScale']:.2f} (from 2016-2020 only)",
+        f"season rates: {v['seasonRates']}",
+        f"NOAA-20 holdout 2026: {None if v['handoffHoldout'] is None else {k: v['handoffHoldout'][k] for k in ('model','medApe','coverage90','totalError','test')}}",
         f"forward test: medAPE {v['forward']['medApe']:.1%}, bias {v['forward']['bias']:+.1%}, coverage {v['forward']['coverage90']:.0%}",
         f"LOYO 90% coverage: link 1 {v['coverage90']:.0%} (raw {v['coverage90Raw']:.0%}, scale x{v['intervalScale']:.2f}); "
         f"link 2 {v['coverage90Link2']:.0%} (raw {v['coverage90Link2Raw']:.0%})",

@@ -55,7 +55,7 @@ export function Splits() {
   const { validation } = useData();
   const [wrap, width] = useWidth<HTMLDivElement>(1000);
   const { backward, forward } = validation;
-  const short = [backward, forward].filter((s) => s.coverage90 < 0.85);
+  const short = [backward, forward].filter((s) => s.coverage90 < 0.9);
   const finding = `Run backward in time, ${sentence(backward)}.${short.length ? ` That is short of the 90% the interval promises${short.length === 2 ? ", in both directions" : ""}.` : ""}`;
   const miss = (s: SplitTest) => s.points.filter((p) => p.actual < p.lo || p.actual > p.hi).length;
 
@@ -70,7 +70,9 @@ export function Splits() {
       <p className="figure-note">
         Forward, {sentence(forward)}. Misses: {miss(backward)} of {backward.n} backward, {miss(forward)} of {forward.n} forward.
         Bias on the log scale: {backward.bias == null ? "no data" : signed(backward.bias, 2)} backward, {forward.bias == null ? "no data" : signed(forward.bias, 2)} forward (0 is unbiased).
-        These tests use intervals as first fitted, before the widening described in figure 3.
+        {backward.intervalScale != null && backward.coverage90Unwidened != null
+          ? `Before widening, coverage was ${Math.round(backward.coverage90Unwidened * 100)}% backward and ${Math.round((forward.coverage90Unwidened ?? forward.coverage90) * 100)}% forward. Each test widens its intervals by a factor learned from leave-one-year-out checks inside its own training years (×${backward.intervalScale.toFixed(2)} backward, ×${(forward.intervalScale ?? 1).toFixed(2)} forward), so the test years never set the width.`
+          : "These tests use intervals as first fitted, before the widening described in figure 3."}
       </p>
       <TableTwin caption={`Backward test, ${span(backward.test)}`} columns={TABLE} rows={backward.points} collapsible />
     </Figure>

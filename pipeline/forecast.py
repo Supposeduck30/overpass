@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
 
-from calibrate import COVERAGE_FLOOR
+from calibrate import COVERAGE_TARGET as COVERAGE_FLOOR
 from lib import models
 from lib.io import DATA, load_config, region_ids, write_json
 
